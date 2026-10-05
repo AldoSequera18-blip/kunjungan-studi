@@ -13,10 +13,10 @@ interface BarisRuangan extends Room {
   pengaduan_aktif: number;
 }
 
-export default function HalamanRuanganAdmin() {
-  wajibAdmin();
+export default async function HalamanRuanganAdmin() {
+  await wajibAdmin();
 
-  const ruangan = db
+  const ruangan = await db
     .prepare(
       `SELECT r.*,
               (SELECT COUNT(*) FROM visit_schedules s

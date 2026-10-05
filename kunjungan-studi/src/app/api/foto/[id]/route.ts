@@ -15,7 +15,7 @@ const TIPE: Record<string, string> = {
 
 /** Foto profil — hanya pemilik akun dan admin yang dapat melihat. */
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  const u = penggunaSaatIni();
+  const u = await penggunaSaatIni();
   if (!u) return new NextResponse("Tidak diizinkan", { status: 401 });
 
   const id = Number(params.id);
@@ -23,7 +23,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
     return new NextResponse("Tidak diizinkan", { status: 403 });
   }
 
-  const row = db.prepare(`SELECT foto FROM users WHERE id = ?`).get(id) as
+  const row = await db.prepare(`SELECT foto FROM users WHERE id = ?`).get(id) as
     | { foto: string | null }
     | undefined;
   if (!row?.foto) return new NextResponse("Tidak ditemukan", { status: 404 });

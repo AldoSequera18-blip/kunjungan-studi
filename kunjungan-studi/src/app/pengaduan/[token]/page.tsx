@@ -10,13 +10,13 @@ export const metadata = { title: "Pengaduan Fasilitas" };
  * Halaman pengaduan fasilitas yang dibuka dari QR Code ruangan — Bab 19 & 20.
  * Identitas ruangan terbawa otomatis dari token pada URL.
  */
-export default function HalamanPengaduanQr({ params }: { params: { token: string } }) {
-  const qr = db
+export default async function HalamanPengaduanQr({ params }: { params: { token: string } }) {
+  const qr = await db
     .prepare(`SELECT * FROM room_qr_codes WHERE token = ? AND tipe = 'PENGADUAN'`)
     .get(params.token) as RoomQrCode | undefined;
 
   const room = qr
-    ? (db.prepare(`SELECT * FROM rooms WHERE id = ?`).get(qr.room_id) as Room | undefined)
+    ? (await db.prepare(`SELECT * FROM rooms WHERE id = ?`).get(qr.room_id) as Room | undefined)
     : undefined;
 
   if (!qr || !qr.aktif || !room) {

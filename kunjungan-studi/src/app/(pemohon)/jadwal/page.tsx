@@ -32,10 +32,10 @@ interface BarisJadwal {
   fasilitas: string | null;
 }
 
-export default function HalamanJadwalPemohon() {
-  const user = wajibPemohon();
+export default async function HalamanJadwalPemohon() {
+  const user = await wajibPemohon();
 
-  const jadwal = db
+  const jadwal = await db
     .prepare(
       `SELECT s.*, a.nomor, a.nama_kelompok, a.user_id,
               r.nama AS nama_ruangan, r.kode AS kode_ruangan, r.lokasi, r.fasilitas
@@ -93,7 +93,7 @@ export default function HalamanJadwalPemohon() {
     };
   });
 
-  const kunjunganTidakResmi = db.prepare(
+  const kunjunganTidakResmi = await db.prepare(
     `SELECT id, nomor, nama_kelompok, user_id, tanggal_usulan, waktu_mulai_usulan,
             waktu_selesai_usulan, status
        FROM visit_applications

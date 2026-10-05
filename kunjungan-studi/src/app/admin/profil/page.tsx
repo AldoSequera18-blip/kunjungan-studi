@@ -5,8 +5,8 @@ import { FormPasswordAdmin, FormProfilAdmin } from "./FormProfilAdmin";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Profil Admin" };
 
-export default function HalamanProfilAdmin() {
-  const user = wajibAdmin();
+export default async function HalamanProfilAdmin() {
+  const user = await wajibAdmin();
 
   return (
     <div className="space-y-6">

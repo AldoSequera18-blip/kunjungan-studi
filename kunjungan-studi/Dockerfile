@@ -1,15 +1,12 @@
 FROM node:20-bookworm-slim AS dependencies
 WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ && rm -rf /var/lib/apt/lists/*
 COPY package.json package-lock.json ./
 RUN npm ci
 
 FROM node:20-bookworm-slim AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1 \
-    NODE_ENV=production \
-    INITIAL_ADMIN_EMAIL=build-only@example.invalid \
-    INITIAL_ADMIN_PASSWORD=build-only-password-not-for-runtime
+    NODE_ENV=production
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 RUN npm run build

@@ -7,21 +7,21 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Laporan & Rekap" };
 
 /** Laporan & Rekap — Bab 37 dokumen analisis. */
-export default function HalamanLaporan({
+export default async function HalamanLaporan({
   searchParams,
 }: {
   searchParams: { dari?: string; sampai?: string };
 }) {
-  wajibAdmin();
+  await wajibAdmin();
 
   const tahunIni = new Date().getFullYear();
   const dari = searchParams.dari || `${tahunIni}-01-01`;
   const sampai = searchParams.sampai || `${tahunIni}-12-31`;
 
-  const satu = <T,>(sql: string, ...p: unknown[]) => db.prepare(sql).get(...p) as T;
-  const banyak = <T,>(sql: string, ...p: unknown[]) => db.prepare(sql).all(...p) as T[];
+  const satu = async <T,>(sql: string, ...p: unknown[]) => await db.prepare(sql).get(...p) as T;
+  const banyak = async <T,>(sql: string, ...p: unknown[]) => await db.prepare(sql).all(...p) as T[];
 
-  const ringkas = satu<{
+  const ringkas = await satu<{
     jumlah_kunjungan: number;
     total_peserta: number;
   }>(
@@ -33,20 +33,20 @@ export default function HalamanLaporan({
     sampai
   );
 
-  const totalHadir = satu<{ n: number }>(
+  const totalHadir = (await satu<{ n: number }>(
     `SELECT COUNT(*) AS n FROM attendance t JOIN visit_schedules s ON s.id = t.schedule_id
       WHERE s.tanggal BETWEEN ? AND ?`,
     dari,
     sampai
-  ).n;
+  )).n;
 
-  const totalPengaduan = satu<{ n: number }>(
+  const totalPengaduan = (await satu<{ n: number }>(
     `SELECT COUNT(*) AS n FROM facility_reports WHERE date(created_at) BETWEEN ? AND ?`,
     dari,
     sampai
-  ).n;
+  )).n;
 
-  const perInstansi = banyak<{
+  const perInstansi = await banyak<{
     asal_instansi: string;
     jenis_instansi: string | null;
     jumlah: number;
@@ -61,7 +61,7 @@ export default function HalamanLaporan({
     sampai
   );
 
-  const perRuangan = banyak<{
+  const perRuangan = await banyak<{
     nama: string;
     kode: string;
     kapasitas: number;
@@ -80,7 +80,7 @@ export default function HalamanLaporan({
     dari, sampai, dari, sampai, dari, sampai
   );
 
-  const perBulan = banyak<{ bulan: string; jumlah: number }>(
+  const perBulan = await banyak<{ bulan: string; jumlah: number }>(
     `SELECT substr(s.tanggal, 1, 7) AS bulan, COUNT(*) AS jumlah
        FROM visit_schedules s
       WHERE s.tanggal BETWEEN ? AND ? AND s.status != 'DIBATALKAN'
@@ -89,14 +89,14 @@ export default function HalamanLaporan({
     sampai
   );
 
-  const pengaduanStatus = banyak<{ status: string; jumlah: number }>(
+  const pengaduanStatus = await banyak<{ status: string; jumlah: number }>(
     `SELECT status, COUNT(*) AS jumlah FROM facility_reports
       WHERE date(created_at) BETWEEN ? AND ? GROUP BY status ORDER BY jumlah DESC`,
     dari,
     sampai
   );
 
-  const pengaduanKategori = banyak<{ kategori: string; jumlah: number }>(
+  const pengaduanKategori = await banyak<{ kategori: string; jumlah: number }>(
     `SELECT kategori, COUNT(*) AS jumlah FROM facility_reports
       WHERE date(created_at) BETWEEN ? AND ? GROUP BY kategori ORDER BY jumlah DESC`,
     dari,

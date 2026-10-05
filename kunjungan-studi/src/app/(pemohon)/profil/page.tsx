@@ -6,8 +6,8 @@ import FotoProfil from "./FotoProfil";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Profil Saya" };
 
-export default function HalamanProfil() {
-  const user = wajibPemohon();
+export default async function HalamanProfil() {
+  const user = await wajibPemohon();
 
   return (
     <div className="space-y-6">

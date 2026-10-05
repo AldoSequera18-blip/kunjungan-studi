@@ -1,4 +1,4 @@
-# Sistem Informasi Manajemen Kunjungan Studi
+﻿# Sistem Informasi Manajemen Kunjungan Studi
 
 Aplikasi web berbasis **Next.js 14 (App Router) + TypeScript + Tailwind CSS** untuk
 Balai Layanan Perpustakaan Pemda DIY. Dibangun mengikuti dokumen
@@ -7,10 +7,10 @@ Balai Layanan Perpustakaan Pemda DIY. Dibangun mengikuti dokumen
 Alur inti yang didukung:
 
 ```
-Informasi Kunjungan → Pendaftaran Kelompok → Verifikasi Admin → Diterima
-→ Penjadwalan → Pembagian Ruangan → Pelaksanaan Kunjungan
-→ Daftar Hadir per Ruangan → Pengaduan Fasilitas via QR Code
-→ Tindak Lanjut Admin → Kunjungan Selesai
+Informasi Kunjungan â†’ Pendaftaran Kelompok â†’ Verifikasi Admin â†’ Diterima
+â†’ Penjadwalan â†’ Pembagian Ruangan â†’ Pelaksanaan Kunjungan
+â†’ Daftar Hadir per Ruangan â†’ Pengaduan Fasilitas via QR Code
+â†’ Tindak Lanjut Admin â†’ Kunjungan Selesai
 ```
 
 ---
@@ -47,18 +47,8 @@ npm run dev
 
 Buka <http://localhost:3000>.
 
-Database SQLite (`data/kunjungan.db`) **dibuat otomatis** pada saat pertama kali
-dijalankan, lengkap dengan data awal: 1 akun admin, 1 akun pemohon, 5 ruangan,
-dan QR Code untuk setiap ruangan.
-
-### Akun uji coba
-
-| Peran | Email | Password |
-|---|---|---|
-| Admin | `admin@perpusdiy.go.id` | `admin123` |
-| Pemohon | `budi@sman1yogya.sch.id` | `pemohon123` |
-
-> Ganti password kedua akun ini sebelum digunakan pada lingkungan sungguhan.
+Database aplikasi menggunakan PostgreSQL Supabase. Atur `DATABASE_URL` di
+`.env.local` dan jalankan SQL migration sebelum menjalankan aplikasi.
 
 ### Perintah lain
 
@@ -66,7 +56,6 @@ dan QR Code untuk setiap ruangan.
 npm run build     # build produksi
 npm start         # jalankan hasil build
 npm run lint      # pemeriksaan ESLint
-npm run db:reset  # hapus database agar dibuat ulang dari data awal
 ```
 
 ---
@@ -76,14 +65,14 @@ npm run db:reset  # hapus database agar dibuat ulang dari data awal
 Secara bawaan QR Code berisi alamat `http://localhost:3000`, yang tidak dapat
 dibuka dari ponsel. Agar bisa dipindai pada jaringan Wi-Fi yang sama:
 
-1. Cari alamat IP komputer Anda — `ipconfig` (Windows) atau `ifconfig` / `ip a` (macOS/Linux),
+1. Cari alamat IP komputer Anda â€” `ipconfig` (Windows) atau `ifconfig` / `ip a` (macOS/Linux),
    misalnya `192.168.1.10`.
 2. Ubah `.env.local`:
    ```env
    PUBLIC_BASE_URL=http://192.168.1.10:3000
    ```
 3. Jalankan ulang: `npm run dev`
-4. Buka **Panel Admin → Ruangan → [pilih ruangan]**, lalu pindai QR Code dari ponsel.
+4. Buka **Panel Admin â†’ Ruangan â†’ [pilih ruangan]**, lalu pindai QR Code dari ponsel.
 
 ---
 
@@ -91,38 +80,38 @@ dibuka dari ponsel. Agar bisa dipindai pada jaringan Wi-Fi yang sama:
 
 ```
 kunjungan-studi/
-├── data/                       # database SQLite (dibuat otomatis)
-├── scripts/reset-db.mjs        # utilitas reset database
-├── src/
-│   ├── app/
-│   │   ├── (publik)/           # halaman publik tanpa login
-│   │   │   ├── page.tsx              Informasi kunjungan (Bab 7)
-│   │   │   ├── alur/                 Alur pendaftaran (Bab 6)
-│   │   │   ├── ruangan/              Ruangan & fasilitas
-│   │   │   └── faq/                  Pertanyaan umum
-│   │   ├── (auth)/             # login & registrasi
-│   │   ├── (pemohon)/          # portal pemohon (Bab 23–28)
-│   │   │   ├── dashboard/  profil/  kunjungan/  peserta/
-│   │   │   ├── jadwal/  fasilitas/  kehadiran/
-│   │   │   └── pengaduan-saya/  notifikasi/
-│   │   ├── admin/              # panel admin (Bab 29–39)
-│   │   │   ├── permohonan/  kelompok/  jadwal/  ruangan/
-│   │   │   ├── kehadiran/  pengaduan/  laporan/
-│   │   │   └── notifikasi/  pengaturan/  audit/
-│   │   ├── hadir/[token]/      # daftar hadir per ruangan via QR (Bab 17–18)
-│   │   ├── pengaduan/[token]/  # pengaduan fasilitas via QR (Bab 19–20)
-│   │   └── api/
-│   │       ├── qr/[token]/     # generator gambar QR Code (PNG)
-│   │       └── logout/
-│   ├── components/             # komponen UI bersama
-│   └── lib/
-│       ├── db.ts               # koneksi SQLite, skema 12 tabel, data awal
-│       ├── auth.ts             # sesi, bcrypt, hak akses
-│       ├── audit.ts            # audit log & notifikasi
-│       ├── types.ts            # tipe data & konstanta
-│       └── utils.ts            # format tanggal, label status, validasi
-├── tailwind.config.ts
-└── next.config.mjs
+â”œâ”€â”€ data/                       # berkas lokal
+â”œâ”€â”€ scripts/check-supabase-connection.mjs # pemeriksaan koneksi Supabase
+â”œâ”€â”€ src/
+â”‚   â”œâ”€â”€ app/
+â”‚   â”‚   â”œâ”€â”€ (publik)/           # halaman publik tanpa login
+â”‚   â”‚   â”‚   â”œâ”€â”€ page.tsx              Informasi kunjungan (Bab 7)
+â”‚   â”‚   â”‚   â”œâ”€â”€ alur/                 Alur pendaftaran (Bab 6)
+â”‚   â”‚   â”‚   â”œâ”€â”€ ruangan/              Ruangan & fasilitas
+â”‚   â”‚   â”‚   â””â”€â”€ faq/                  Pertanyaan umum
+â”‚   â”‚   â”œâ”€â”€ (auth)/             # login & registrasi
+â”‚   â”‚   â”œâ”€â”€ (pemohon)/          # portal pemohon (Bab 23â€“28)
+â”‚   â”‚   â”‚   â”œâ”€â”€ dashboard/  profil/  kunjungan/  peserta/
+â”‚   â”‚   â”‚   â”œâ”€â”€ jadwal/  fasilitas/  kehadiran/
+â”‚   â”‚   â”‚   â””â”€â”€ pengaduan-saya/  notifikasi/
+â”‚   â”‚   â”œâ”€â”€ admin/              # panel admin (Bab 29â€“39)
+â”‚   â”‚   â”‚   â”œâ”€â”€ permohonan/  kelompok/  jadwal/  ruangan/
+â”‚   â”‚   â”‚   â”œâ”€â”€ kehadiran/  pengaduan/  laporan/
+â”‚   â”‚   â”‚   â””â”€â”€ notifikasi/  pengaturan/  audit/
+â”‚   â”‚   â”œâ”€â”€ hadir/[token]/      # daftar hadir per ruangan via QR (Bab 17â€“18)
+â”‚   â”‚   â”œâ”€â”€ pengaduan/[token]/  # pengaduan fasilitas via QR (Bab 19â€“20)
+â”‚   â”‚   â””â”€â”€ api/
+â”‚   â”‚       â”œâ”€â”€ qr/[token]/     # generator gambar QR Code (PNG)
+â”‚   â”‚       â””â”€â”€ logout/
+â”‚   â”œâ”€â”€ components/             # komponen UI bersama
+â”‚   â””â”€â”€ lib/
+â”‚       â”œâ”€â”€ db.ts               # koneksi PostgreSQL Supabase
+â”‚       â”œâ”€â”€ auth.ts             # sesi, bcrypt, hak akses
+â”‚       â”œâ”€â”€ audit.ts            # audit log & notifikasi
+â”‚       â”œâ”€â”€ types.ts            # tipe data & konstanta
+â”‚       â””â”€â”€ utils.ts            # format tanggal, label status, validasi
+â”œâ”€â”€ tailwind.config.ts
+â””â”€â”€ next.config.mjs
 ```
 
 ---
@@ -153,16 +142,16 @@ mewakili tepat satu kelompok/rombongan.
 ## 5. Status yang Digunakan
 
 **Permohonan (Bab 12)**
-`DRAFT → DIAJUKAN → DALAM_VERIFIKASI → DITERIMA / DITOLAK / PERLU_PERBAIKAN → DIJADWALKAN → BERLANGSUNG → SELESAI`
+`DRAFT â†’ DIAJUKAN â†’ DALAM_VERIFIKASI â†’ DITERIMA / DITOLAK / PERLU_PERBAIKAN â†’ DIJADWALKAN â†’ BERLANGSUNG â†’ SELESAI`
 serta `DIBATALKAN`.
 
 **Pengaduan (Bab 21)**
-`DIAJUKAN → DIVERIFIKASI → DITINDAKLANJUTI → SELESAI`, dengan `DITOLAK` dan `TIDAK_VALID`.
+`DIAJUKAN â†’ DIVERIFIKASI â†’ DITINDAKLANJUTI â†’ SELESAI`, dengan `DITOLAK` dan `TIDAK_VALID`.
 
 **Jadwal**
-`TERJADWAL → BERLANGSUNG → SELESAI`, serta `DIBATALKAN`.
+`TERJADWAL â†’ BERLANGSUNG â†’ SELESAI`, serta `DIBATALKAN`.
 
-**Nomor kunjungan (Bab 11)**: `KUN-2026-0001`  ·  **Nomor pengaduan**: `ADU-2026-0001`
+**Nomor kunjungan (Bab 11)**: `KUN-2026-0001`  Â·  **Nomor pengaduan**: `ADU-2026-0001`
 
 ---
 
@@ -181,8 +170,8 @@ serta `DIBATALKAN`.
 10. Password disimpan sebagai hash bcrypt, tidak pernah plaintext.
 
 Poin 11 (kapasitas, dokumen wajib, mekanisme check-out, retensi data) sengaja
-**belum dipaksakan** sebagai aturan wajib — sistem hanya menampilkan peringatan.
-Daftar lengkap hal yang masih perlu dikonfirmasi ada di **Admin → Pengaturan**,
+**belum dipaksakan** sebagai aturan wajib â€” sistem hanya menampilkan peringatan.
+Daftar lengkap hal yang masih perlu dikonfirmasi ada di **Admin â†’ Pengaturan**,
 mengacu Bab 46.
 
 ---
@@ -190,40 +179,32 @@ mengacu Bab 46.
 ## 7. Alur Penggunaan Singkat
 
 **Sebagai pemohon**
-1. Daftar akun → Login
-2. Kunjungan Studi → Ajukan Kunjungan → isi data kelompok
+1. Daftar akun â†’ Login
+2. Kunjungan Studi â†’ Ajukan Kunjungan â†’ isi data kelompok
 3. Lengkapi Data Peserta pada halaman detail
 4. Tekan **Ajukan ke Admin**
 5. Pantau status, jadwal, dan ruangan pada dashboard
 
 **Sebagai admin**
-1. Login → Permohonan Kunjungan → pilih permohonan
-2. **Mulai Verifikasi** → periksa data → simpan keputusan (Terima / Tolak / Perbaikan)
+1. Login â†’ Permohonan Kunjungan â†’ pilih permohonan
+2. **Mulai Verifikasi** â†’ periksa data â†’ simpan keputusan (Terima / Tolak / Perbaikan)
 3. Setelah diterima: **Tetapkan Jadwal & Ruangan** (sistem memeriksa bentrokan)
-4. Ruangan → cetak QR Code pengaduan dan QR Code daftar hadir
+4. Ruangan â†’ cetak QR Code pengaduan dan QR Code daftar hadir
 5. Saat kunjungan: peserta check-in lewat halaman daftar hadir ruangan
-6. Pengaduan Fasilitas → tindak lanjut hingga Selesai
+6. Pengaduan Fasilitas â†’ tindak lanjut hingga Selesai
 7. Laporan & Rekap untuk rekapitulasi periode
 
 ---
 
-## 8. Migrasi ke Supabase / PostgreSQL
+## 8. Supabase / PostgreSQL
 
-Dokumen analisis (Bab 41) merencanakan Supabase + Vercel. Proyek ini memakai
-SQLite lokal agar langsung dapat dijalankan tanpa pendaftaran layanan apa pun.
-Nama tabel dan kolom dibuat identik dengan rencana tersebut, sehingga migrasi
-cukup dilakukan pada satu lapisan:
+Aplikasi menggunakan PostgreSQL Supabase lewat driver server `postgres`.
+`DATABASE_URL` hanya dibaca di server dan tidak boleh diberi awalan `NEXT_PUBLIC_`.
 
-1. Buat tabel di Supabase memakai definisi SQL pada `src/lib/db.ts`
-   (ubah `INTEGER PRIMARY KEY AUTOINCREMENT` → `BIGSERIAL PRIMARY KEY`,
-   `datetime('now')` → `now()`, `TEXT` tanggal → `DATE`/`TIMESTAMPTZ`).
-2. Ganti isi `src/lib/db.ts` dengan klien Supabase.
-3. Ganti `src/lib/auth.ts` dengan Supabase Auth bila ingin memakai autentikasi bawaan.
-4. Seluruh halaman dan server action tidak perlu diubah strukturnya.
-
----
-
-## 9. Belum Termasuk (Bab 42 — Menyusul)
+1. Di Supabase, buka **SQL Editor**, lalu jalankan isi `supabase/migrations/20261005000000_initial_schema.sql`.
+2. Atur URI koneksi dari menu **Connect** pada `DATABASE_URL` di `.env.local` atau `.env.production`. Untuk server VPS IPv4, pilih **Session Pooler**. Jangan commit atau membagikan URI tersebut.
+3. Jalankan `npm run db:check` untuk memastikan koneksi serta 13 tabel aplikasi dapat diakses.
+## 9. Belum Termasuk (Bab 42 â€” Menyusul)
 
 Check-out otomatis, notifikasi real-time, export Excel/PDF, statistik lanjutan,
 QR Code absensi terintegrasi penuh, penilaian pengalaman kunjungan, integrasi
@@ -237,16 +218,11 @@ wajib/tidaknya dokumen masih perlu dikonfirmasi Balai.
 
 ## 10. Pemecahan Masalah
 
-**`npm install` gagal pada better-sqlite3**
-Modul ini memerlukan binary native. Umumnya npm mengunduh versi siap pakai.
-Bila gagal di Windows, pasang build tools: `npm install --global windows-build-tools`
-atau install **Visual Studio Build Tools** dengan workload *Desktop development with C++*.
-
-**Halaman error setelah mengubah skema database**
-Jalankan `npm run db:reset`, lalu `npm run dev` lagi.
+**Koneksi database gagal**
+Pastikan `DATABASE_URL` valid, migration sudah dijalankan, dan server dapat mengakses Supabase.
 
 **QR Code tidak bisa dipindai dari ponsel**
-Lihat bagian 2 — atur `PUBLIC_BASE_URL` ke alamat IP komputer.
+Lihat bagian 2 â€” atur `PUBLIC_BASE_URL` ke alamat IP komputer.
 
 **Port 3000 sudah dipakai**
 `npm run dev -- -p 3001`
@@ -257,8 +233,8 @@ Lihat bagian 2 — atur `PUBLIC_BASE_URL` ke alamat IP komputer.
 
 Akses melalui jaringan mana pun memerlukan server/VPS dengan IP publik dan domain. Konfigurasi
 `Dockerfile`, `docker-compose.yml`, dan `Caddyfile` menjalankan aplikasi dengan HTTPS otomatis,
-Node.js 20, serta volume persisten untuk database SQLite dan unggahan. Jangan deploy aplikasi ini
-sebagai fungsi serverless dengan filesystem sementara.
+Node.js 20, serta volume persisten untuk berkas unggahan. Database PostgreSQL berada di Supabase.
+Jangan deploy aplikasi ini sebagai fungsi serverless dengan filesystem sementara.
 
 1. Siapkan VPS Linux dengan Docker Engine dan Docker Compose Plugin. Arahkan DNS `A` domain ke IP VPS.
 2. Buka port masuk `80/tcp` dan `443/tcp` pada firewall VPS/provider.
@@ -268,9 +244,8 @@ sebagai fungsi serverless dengan filesystem sementara.
    cp .env.production.example .env.production
    ```
 
-   Isi `DOMAIN` dan `PUBLIC_BASE_URL` dengan domain yang sama. Ubah `INITIAL_ADMIN_EMAIL` dan
-   tetapkan `INITIAL_ADMIN_PASSWORD` yang kuat (minimal 16 karakter). Database baru akan membuat
-   akun admin tersebut tanpa akun demo bawaan.
+   Isi `DOMAIN`, `PUBLIC_BASE_URL`, dan `DATABASE_URL`. Jalankan SQL migration di Supabase
+   sebelum aplikasi dijalankan.
 
 4. Jalankan dari folder proyek:
 
@@ -284,3 +259,5 @@ sebagai fungsi serverless dengan filesystem sementara.
 Database dan berkas unggahan disimpan pada Docker volume `app_data`, sehingga tetap ada saat
 container diperbarui. Cadangkan volume tersebut secara berkala. Jangan menghapus volume dengan
 `docker compose down -v` bila ingin mempertahankan data.
+
+

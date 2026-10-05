@@ -26,12 +26,12 @@ export async function aksiKirimPengaduan(
   const fotoUrl = teks(fd, "foto_url");
   const nomorKunjungan = teks(fd, "nomor_kunjungan");
 
-  const qr = db
+  const qr = await db
     .prepare(`SELECT * FROM room_qr_codes WHERE token = ? AND aktif = 1 AND tipe = 'PENGADUAN'`)
     .get(token) as RoomQrCode | undefined;
   if (!qr) return { error: "QR Code tidak dikenali atau sudah tidak aktif." };
 
-  const room = db.prepare(`SELECT * FROM rooms WHERE id = ?`).get(qr.room_id) as Room | undefined;
+  const room = await db.prepare(`SELECT * FROM rooms WHERE id = ?`).get(qr.room_id) as Room | undefined;
   if (!room) return { error: "Data ruangan tidak ditemukan." };
 
   if (!kategori) return { error: "Kategori fasilitas wajib dipilih." };
@@ -45,14 +45,14 @@ export async function aksiKirimPengaduan(
   // Mengaitkan pengaduan dengan kunjungan bila pelapor mengisi nomor kunjungan
   let applicationId: number | null = null;
   if (nomorKunjungan) {
-    const app = db
+    const app = await db
       .prepare(`SELECT id FROM visit_applications WHERE nomor = ?`)
       .get(nomorKunjungan.toUpperCase()) as { id: number } | undefined;
     applicationId = app?.id ?? null;
   }
 
-  const nomor = buatNomorPengaduan();
-  const info = db
+  const nomor = await buatNomorPengaduan();
+  const info = await db
     .prepare(
       `INSERT INTO facility_reports
          (nomor, room_id, application_id, kategori, deskripsi, urgensi,
@@ -74,13 +74,13 @@ export async function aksiKirimPengaduan(
 
   const reportId = Number(info.lastInsertRowid);
 
-  db.prepare(
+  await db.prepare(
     `INSERT INTO report_actions (report_id, admin_id, status_dari, status_ke, catatan)
      VALUES (?, NULL, NULL, 'DIAJUKAN', 'Pengaduan dibuat melalui QR Code ruangan')`
   ).run(reportId);
 
-  const u = penggunaSaatIni();
-  catatAudit({
+  const u = await penggunaSaatIni();
+  await catatAudit({
     userId: u?.id ?? null,
     aktor: anonim ? "ANONIM" : pelaporNama || u?.nama || "PENGUNJUNG",
     aksi: "BUAT_PENGADUAN",
@@ -89,7 +89,7 @@ export async function aksiKirimPengaduan(
     detail: `${nomor} — ${room.nama} — ${kategori}`,
   });
 
-  kirimNotifikasiAdmin({
+  await kirimNotifikasiAdmin({
     judul: "Pengaduan fasilitas baru",
     pesan: `${nomor} pada ${room.nama} — kategori ${kategori}, urgensi ${urgensi.toLowerCase()}.`,
     link: `/admin/pengaduan/${reportId}`,

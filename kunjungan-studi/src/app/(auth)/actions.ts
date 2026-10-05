@@ -13,7 +13,7 @@ export async function aksiLogin(_prev: FormState, fd: FormData): Promise<FormSta
 
   if (!email || !password) return { error: "Email dan password wajib diisi." };
 
-  const user = db.prepare(`SELECT * FROM users WHERE email = ?`).get(email) as User | undefined;
+  const user = await db.prepare(`SELECT * FROM users WHERE email = ?`).get(email) as User | undefined;
 
   if (!user || !cekPassword(password, user.password_hash)) {
     return { error: "Email atau password salah." };
@@ -22,8 +22,8 @@ export async function aksiLogin(_prev: FormState, fd: FormData): Promise<FormSta
     return { error: "Akun Anda tidak aktif. Silakan hubungi admin Balai." };
   }
 
-  buatSesi(user.id);
-  catatAudit({ userId: user.id, aktor: user.nama, aksi: "LOGIN", entitas: "SESSION" });
+  await buatSesi(user.id);
+  await catatAudit({ userId: user.id, aktor: user.nama, aksi: "LOGIN", entitas: "SESSION" });
 
   redirect(user.role === "ADMIN" ? "/admin" : "/dashboard");
 }
@@ -48,10 +48,10 @@ export async function aksiRegistrasi(_prev: FormState, fd: FormData): Promise<Fo
   if (password.length < 8) return { error: "Password minimal 8 karakter." };
   if (password !== konfirmasi) return { error: "Konfirmasi password tidak sama." };
 
-  const sudahAda = db.prepare(`SELECT id FROM users WHERE email = ?`).get(email);
+  const sudahAda = await db.prepare(`SELECT id FROM users WHERE email = ?`).get(email);
   if (sudahAda) return { error: "Email sudah terdaftar. Silakan masuk." };
 
-  const info = db
+  const info = await db
     .prepare(
       `INSERT INTO users (nama, email, password_hash, telepon, instansi, alamat, role)
        VALUES (?, ?, ?, ?, ?, ?, 'PEMOHON')`
@@ -60,8 +60,8 @@ export async function aksiRegistrasi(_prev: FormState, fd: FormData): Promise<Fo
 
   const userId = Number(info.lastInsertRowid);
 
-  buatSesi(userId);
-  catatAudit({
+  await buatSesi(userId);
+  await catatAudit({
     userId,
     aktor: nama,
     aksi: "REGISTRASI",

@@ -18,18 +18,18 @@ import KartuQr from "./KartuQr";
 
 export const dynamic = "force-dynamic";
 
-export default function DetailRuanganAdmin({ params }: { params: { id: string } }) {
-  wajibAdmin();
+export default async function DetailRuanganAdmin({ params }: { params: { id: string } }) {
+  await wajibAdmin();
   const id = Number(params.id);
 
-  const room = db.prepare(`SELECT * FROM rooms WHERE id = ?`).get(id) as Room | undefined;
+  const room = await db.prepare(`SELECT * FROM rooms WHERE id = ?`).get(id) as Room | undefined;
   if (!room) notFound();
 
-  const qrCodes = db
+  const qrCodes = await db
     .prepare(`SELECT * FROM room_qr_codes WHERE room_id = ? ORDER BY tipe`)
     .all(id) as RoomQrCode[];
 
-  const jadwal = db
+  const jadwal = await db
     .prepare(
       `SELECT s.id, s.tanggal, s.waktu_mulai, s.waktu_selesai, s.status,
               a.id AS application_id, a.nomor, a.nama_kelompok
@@ -48,7 +48,7 @@ export default function DetailRuanganAdmin({ params }: { params: { id: string } 
     nama_kelompok: string;
   }[];
 
-  const pengaduan = db
+  const pengaduan = await db
     .prepare(
       `SELECT id, nomor, kategori, urgensi, status, created_at
          FROM facility_reports WHERE room_id = ? ORDER BY created_at DESC LIMIT 10`

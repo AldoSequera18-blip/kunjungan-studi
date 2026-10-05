@@ -2,11 +2,11 @@ import AppShell, { type MenuItem } from "@/components/AppShell";
 import { wajibPemohon } from "@/lib/auth";
 import { db } from "@/lib/db";
 
-export default function LayoutPemohon({ children }: { children: React.ReactNode }) {
-  const user = wajibPemohon();
+export default async function LayoutPemohon({ children }: { children: React.ReactNode }) {
+  const user = await wajibPemohon();
 
   const belumDibaca = (
-    db
+    await db
       .prepare(`SELECT COUNT(*) AS n FROM notifications WHERE user_id = ? AND dibaca = 0`)
       .get(user.id) as { n: number }
   ).n;

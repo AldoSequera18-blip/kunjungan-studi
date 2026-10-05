@@ -41,16 +41,16 @@ const FILTER = [
 ];
 
 /** Modul Permohonan — Bab 31 dokumen analisis. */
-export default function DaftarPermohonanAdmin({
+export default async function DaftarPermohonanAdmin({
   searchParams,
 }: {
   searchParams: { status?: string; q?: string };
 }) {
-  wajibAdmin();
+  await wajibAdmin();
   const status = searchParams.status ?? "SEMUA";
   const q = (searchParams.q ?? "").trim();
 
-  const semua = db
+  const semua = await db
     .prepare(
       `SELECT a.id, a.nomor, a.jenis_kunjungan, a.nama_kelompok, a.asal_instansi, a.jumlah_peserta,
               a.tanggal_usulan, a.waktu_mulai_usulan, a.waktu_selesai_usulan,

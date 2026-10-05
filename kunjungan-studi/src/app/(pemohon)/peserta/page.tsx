@@ -27,10 +27,10 @@ interface BarisPeserta {
 }
 
 /** Menu Data Peserta — Bab 26 dokumen analisis. */
-export default function HalamanDataPeserta() {
-  const user = wajibPemohon();
+export default async function HalamanDataPeserta() {
+  const user = await wajibPemohon();
 
-  const kelompok = db
+  const kelompok = await db
     .prepare(
       `SELECT a.id, a.nomor, a.nama_kelompok, a.asal_instansi, a.tanggal_usulan,
               a.status, a.jumlah_peserta,
@@ -41,7 +41,7 @@ export default function HalamanDataPeserta() {
     )
     .all(user.id) as BarisKelompok[];
 
-  const semuaPeserta = db
+  const semuaPeserta = await db
     .prepare(
       `SELECT v.id, v.application_id, v.nama, v.identitas, v.jenis
          FROM visitors v JOIN visit_applications a ON a.id = v.application_id

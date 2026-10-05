@@ -13,11 +13,7 @@ yarn-error.log*
 next-env.d.ts
 tsconfig.tsbuildinfo
 
-# Database lokal & file upload
-/data/*.db
-/data/*.db-journal
-/data/*.db-wal
-/data/*.db-shm
+# Berkas upload lokal
 /public/uploads/*
 /data/surat/
 !/public/uploads/.gitkeep

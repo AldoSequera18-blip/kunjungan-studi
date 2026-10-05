@@ -16,46 +16,46 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Dashboard Admin" };
 
 /** Dashboard admin — Bab 29 dokumen analisis. */
-export default function DashboardAdmin() {
-  const admin = wajibAdmin();
-  const n = (sql: string) => (db.prepare(sql).get() as { n: number }).n;
+export default async function DashboardAdmin() {
+  const admin = await wajibAdmin();
+  const n = async (sql: string) => (await db.prepare(sql).get() as { n: number }).n;
 
-  const permohonanBaru = n(
+  const permohonanBaru = await n(
     `SELECT COUNT(*) AS n FROM visit_applications WHERE status = 'DIAJUKAN'`
   );
-  const dalamVerifikasi = n(
+  const dalamVerifikasi = await n(
     `SELECT COUNT(*) AS n FROM visit_applications WHERE status = 'DALAM_VERIFIKASI'`
   );
-  const diterima = n(
+  const diterima = await n(
     `SELECT COUNT(*) AS n FROM visit_applications WHERE status IN ('DITERIMA','DIJADWALKAN')`
   );
-  const ditolak = n(`SELECT COUNT(*) AS n FROM visit_applications WHERE status = 'DITOLAK'`);
+  const ditolak = await n(`SELECT COUNT(*) AS n FROM visit_applications WHERE status = 'DITOLAK'`);
 
-  const kunjunganHariIni = n(
+  const kunjunganHariIni = await n(
     `SELECT COUNT(*) AS n FROM visit_schedules WHERE tanggal = date('now') AND status != 'DIBATALKAN'`
   );
-  const kunjunganMendatang = n(
+  const kunjunganMendatang = await n(
     `SELECT COUNT(*) AS n FROM visit_schedules WHERE tanggal > date('now') AND status != 'DIBATALKAN'`
   );
-  const pengunjungHariIni = n(
+  const pengunjungHariIni = await n(
     `SELECT COUNT(*) AS n FROM attendance WHERE date(checkin_at) = date('now')`
   );
-  const ruanganTerpakaiHariIni = n(
+  const ruanganTerpakaiHariIni = await n(
     `SELECT COUNT(DISTINCT room_id) AS n FROM visit_schedules
       WHERE tanggal = date('now') AND status != 'DIBATALKAN'`
   );
 
-  const pengaduanBaru = n(
+  const pengaduanBaru = await n(
     `SELECT COUNT(*) AS n FROM facility_reports WHERE status = 'DIAJUKAN'`
   );
-  const pengaduanProses = n(
+  const pengaduanProses = await n(
     `SELECT COUNT(*) AS n FROM facility_reports WHERE status IN ('DIVERIFIKASI','DITINDAKLANJUTI')`
   );
-  const pengaduanSelesai = n(
+  const pengaduanSelesai = await n(
     `SELECT COUNT(*) AS n FROM facility_reports WHERE status = 'SELESAI'`
   );
 
-  const antrianVerifikasi = db
+  const antrianVerifikasi = await db
     .prepare(
       `SELECT id, nomor, nama_kelompok, asal_instansi, jumlah_peserta,
               tanggal_usulan, status, created_at
@@ -74,7 +74,7 @@ export default function DashboardAdmin() {
     created_at: string;
   }[];
 
-  const agendaHariIni = db
+  const agendaHariIni = await db
     .prepare(
       `SELECT s.id, s.waktu_mulai, s.waktu_selesai, s.status,
               a.nomor, a.nama_kelompok, a.jumlah_peserta, r.nama AS nama_ruangan,
@@ -97,7 +97,7 @@ export default function DashboardAdmin() {
     hadir: number;
   }[];
 
-  const pengaduanTerbaru = db
+  const pengaduanTerbaru = await db
     .prepare(
       `SELECT f.id, f.nomor, f.kategori, f.urgensi, f.status, f.created_at,
               r.nama AS nama_ruangan

@@ -16,17 +16,17 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Dashboard" };
 
 /** Dashboard pemohon — Bab 23 dokumen analisis. */
-export default function DashboardPemohon() {
-  const user = wajibPemohon();
+export default async function DashboardPemohon() {
+  const user = await wajibPemohon();
 
-  const permohonan = db
+  const permohonan = await db
     .prepare(`SELECT * FROM visit_applications WHERE user_id = ? ORDER BY created_at DESC`)
     .all(user.id) as VisitApplication[];
 
   const hitung = (daftar: string[]) =>
     permohonan.filter((p) => daftar.includes(p.status)).length;
 
-  const jadwalMendatang = db
+  const jadwalMendatang = await db
     .prepare(
       `SELECT s.tanggal, s.waktu_mulai, s.waktu_selesai, s.status,
               a.nomor, a.nama_kelompok, r.nama AS nama_ruangan, r.lokasi
@@ -47,7 +47,7 @@ export default function DashboardPemohon() {
     lokasi: string | null;
   }[];
 
-  const kehadiranTerakhir = db
+  const kehadiranTerakhir = await db
     .prepare(
       `SELECT t.nama_peserta, t.checkin_at, r.nama AS nama_ruangan, a.nomor
          FROM attendance t
@@ -63,7 +63,7 @@ export default function DashboardPemohon() {
   }[];
 
   const totalPeserta = (
-    db
+    await db
       .prepare(
         `SELECT COUNT(*) AS n FROM visitors v
            JOIN visit_applications a ON a.id = v.application_id
@@ -85,13 +85,13 @@ export default function DashboardPemohon() {
         <StatCard label="Total Permohonan" value={permohonan.length} href="/kunjungan" />
         <StatCard
           label="Menunggu Verifikasi"
-          value={hitung(["DIAJUKAN", "DALAM_VERIFIKASI"])}
+          value={await hitung(["DIAJUKAN", "DALAM_VERIFIKASI"])}
           tone="amber"
           href="/kunjungan"
         />
         <StatCard
           label="Sudah Dijadwalkan"
-          value={hitung(["DITERIMA", "DIJADWALKAN", "BERLANGSUNG"])}
+          value={await hitung(["DITERIMA", "DIJADWALKAN", "BERLANGSUNG"])}
           tone="brand"
           href="/jadwal"
         />

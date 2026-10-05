@@ -36,11 +36,11 @@ interface Detail {
   nama_kelompok: string | null;
 }
 
-export default function DetailPengaduanAdmin({ params }: { params: { id: string } }) {
-  wajibAdmin();
+export default async function DetailPengaduanAdmin({ params }: { params: { id: string } }) {
+  await wajibAdmin();
   const id = Number(params.id);
 
-  const p = db
+  const p = await db
     .prepare(
       `SELECT f.*, r.nama AS nama_ruangan, r.kode AS kode_ruangan, r.lokasi,
               a.nomor AS nomor_kunjungan, a.nama_kelompok
@@ -52,7 +52,7 @@ export default function DetailPengaduanAdmin({ params }: { params: { id: string 
     .get(id) as Detail | undefined;
   if (!p) notFound();
 
-  const riwayat = db
+  const riwayat = await db
     .prepare(
       `SELECT ra.*, u.nama AS nama_admin FROM report_actions ra
     LEFT JOIN users u ON u.id = ra.admin_id

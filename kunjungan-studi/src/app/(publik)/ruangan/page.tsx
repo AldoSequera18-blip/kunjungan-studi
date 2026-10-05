@@ -5,8 +5,8 @@ import type { Room } from "@/lib/types";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Ruangan & Fasilitas" };
 
-export default function HalamanRuanganPublik() {
-  const ruangan = db
+export default async function HalamanRuanganPublik() {
+  const ruangan = await db
     .prepare(`SELECT * FROM rooms WHERE status != 'TIDAK_AKTIF' ORDER BY kode`)
     .all() as Room[];
 

@@ -6,10 +6,10 @@ import type { Room } from "@/lib/types";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Ruangan & Fasilitas" };
 
-export default function RuanganFasilitasPemohon() {
-  wajibPemohon();
+export default async function RuanganFasilitasPemohon() {
+  await wajibPemohon();
 
-  const ruangan = db
+  const ruangan = await db
     .prepare(`SELECT * FROM rooms WHERE status != 'TIDAK_AKTIF' ORDER BY kode`)
     .all() as Room[];
 

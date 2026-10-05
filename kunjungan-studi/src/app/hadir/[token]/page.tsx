@@ -19,19 +19,19 @@ interface JadwalRuangan {
   jumlah_peserta: number;
 }
 
-export default function HalamanDaftarHadir({
+export default async function HalamanDaftarHadir({
   params,
   searchParams,
 }: {
   params: { token: string };
   searchParams: { jadwal?: string; kode?: string };
 }) {
-  const qr = db
+  const qr = await db
     .prepare(`SELECT * FROM room_qr_codes WHERE token = ? AND tipe = 'ABSENSI'`)
     .get(params.token) as RoomQrCode | undefined;
 
   const room = qr
-    ? (db.prepare(`SELECT * FROM rooms WHERE id = ?`).get(qr.room_id) as Room | undefined)
+    ? (await db.prepare(`SELECT * FROM rooms WHERE id = ?`).get(qr.room_id) as Room | undefined)
     : undefined;
 
   if (!qr || !qr.aktif || !room) {
@@ -53,7 +53,7 @@ export default function HalamanDaftarHadir({
   const hariIni = hariIniISO();
 
   // Kunjungan yang terjadwal di ruangan ini pada hari ini
-  const jadwalHariIni = db
+  const jadwalHariIni = await db
     .prepare(
       `SELECT s.id, s.tanggal, s.waktu_mulai, s.waktu_selesai, s.status,
               a.nomor, a.nama_kelompok, a.asal_instansi, a.jumlah_peserta
@@ -70,7 +70,7 @@ export default function HalamanDaftarHadir({
     jadwalTerpilih = jadwalHariIni.find((j) => String(j.id) === searchParams.jadwal);
   } else if (searchParams.kode) {
     const kode = searchParams.kode.trim().toUpperCase();
-    jadwalTerpilih = db
+    jadwalTerpilih = await db
       .prepare(
         `SELECT s.id, s.tanggal, s.waktu_mulai, s.waktu_selesai, s.status,
                 a.nomor, a.nama_kelompok, a.asal_instansi, a.jumlah_peserta
@@ -85,7 +85,7 @@ export default function HalamanDaftarHadir({
   }
 
   const peserta = jadwalTerpilih
-    ? (db
+    ? (await db
         .prepare(
           `SELECT v.* FROM visitors v
             JOIN visit_schedules s ON s.application_id = v.application_id
@@ -95,7 +95,7 @@ export default function HalamanDaftarHadir({
     : [];
 
   const kehadiran = jadwalTerpilih
-    ? (db
+    ? (await db
         .prepare(`SELECT * FROM attendance WHERE schedule_id = ? ORDER BY checkin_at DESC`)
         .all(jadwalTerpilih.id) as Attendance[])
     : [];

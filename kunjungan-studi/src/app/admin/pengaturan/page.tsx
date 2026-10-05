@@ -10,24 +10,24 @@ export const metadata = { title: "Pengaturan" };
  * Berisi informasi sistem serta daftar hal yang menurut Bab 46 masih
  * memerlukan konfirmasi resmi dari Balai sebelum dijadikan aturan wajib.
  */
-export default function HalamanPengaturan() {
-  wajibAdmin();
+export default async function HalamanPengaturan() {
+  await wajibAdmin();
 
-  const hitung = (sql: string) => (db.prepare(sql).get() as { n: number }).n;
+  const hitung = async (sql: string) => (await db.prepare(sql).get() as { n: number }).n;
 
   const statistik = [
-    ["Pengguna terdaftar", hitung(`SELECT COUNT(*) AS n FROM users`)],
-    ["Admin", hitung(`SELECT COUNT(*) AS n FROM users WHERE role = 'ADMIN'`)],
-    ["Ruangan", hitung(`SELECT COUNT(*) AS n FROM rooms`)],
-    ["QR Code aktif", hitung(`SELECT COUNT(*) AS n FROM room_qr_codes WHERE aktif = 1`)],
-    ["Permohonan", hitung(`SELECT COUNT(*) AS n FROM visit_applications`)],
-    ["Jadwal", hitung(`SELECT COUNT(*) AS n FROM visit_schedules`)],
-    ["Catatan kehadiran", hitung(`SELECT COUNT(*) AS n FROM attendance`)],
-    ["Pengaduan", hitung(`SELECT COUNT(*) AS n FROM facility_reports`)],
-    ["Catatan audit", hitung(`SELECT COUNT(*) AS n FROM audit_logs`)],
+    ["Pengguna terdaftar", await hitung(`SELECT COUNT(*) AS n FROM users`)],
+    ["Admin", await hitung(`SELECT COUNT(*) AS n FROM users WHERE role = 'ADMIN'`)],
+    ["Ruangan", await hitung(`SELECT COUNT(*) AS n FROM rooms`)],
+    ["QR Code aktif", await hitung(`SELECT COUNT(*) AS n FROM room_qr_codes WHERE aktif = 1`)],
+    ["Permohonan", await hitung(`SELECT COUNT(*) AS n FROM visit_applications`)],
+    ["Jadwal", await hitung(`SELECT COUNT(*) AS n FROM visit_schedules`)],
+    ["Catatan kehadiran", await hitung(`SELECT COUNT(*) AS n FROM attendance`)],
+    ["Pengaduan", await hitung(`SELECT COUNT(*) AS n FROM facility_reports`)],
+    ["Catatan audit", await hitung(`SELECT COUNT(*) AS n FROM audit_logs`)],
   ] as const;
 
-  const pengguna = db
+  const pengguna = await db
     .prepare(`SELECT id, nama, email, role, instansi, created_at FROM users ORDER BY role, nama`)
     .all() as {
     id: number;

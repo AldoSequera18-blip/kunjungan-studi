@@ -12,7 +12,7 @@ export async function GET(
   request: Request,
   { params }: { params: { token: string } }
 ) {
-  const qr = db
+  const qr = await db
     .prepare(`SELECT * FROM room_qr_codes WHERE token = ? AND aktif = 1`)
     .get(params.token) as RoomQrCode | undefined;
 

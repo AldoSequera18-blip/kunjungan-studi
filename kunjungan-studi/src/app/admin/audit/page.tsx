@@ -33,19 +33,19 @@ const WARNA_AKSI: Record<string, string> = {
 };
 
 /** Audit Log — Bab 39 dokumen analisis. */
-export default function HalamanAuditLog({
+export default async function HalamanAuditLog({
   searchParams,
 }: {
   searchParams: { aksi?: string; q?: string; hal?: string };
 }) {
-  wajibAdmin();
+  await wajibAdmin();
 
   const halaman = Math.max(1, Number(searchParams.hal ?? 1));
   const perHalaman = 50;
   const aksiFilter = searchParams.aksi ?? "";
   const q = (searchParams.q ?? "").trim().toLowerCase();
 
-  const semua = db
+  const semua = await db
     .prepare(
       `SELECT a.*, u.nama AS nama_user FROM audit_logs a
     LEFT JOIN users u ON u.id = a.user_id

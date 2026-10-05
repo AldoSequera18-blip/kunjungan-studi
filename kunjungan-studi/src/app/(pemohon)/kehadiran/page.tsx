@@ -21,10 +21,10 @@ interface BarisHadir {
 }
 
 /** Menu Daftar Hadir pemohon — Bab 27 dokumen analisis. */
-export default function HalamanKehadiranPemohon() {
-  const user = wajibPemohon();
+export default async function HalamanKehadiranPemohon() {
+  const user = await wajibPemohon();
 
-  const baris = db
+  const baris = await db
     .prepare(
       `SELECT t.id, t.nama_peserta, t.metode, t.checkin_at, t.checkout_at,
               r.nama AS nama_ruangan, r.kode AS kode_ruangan,

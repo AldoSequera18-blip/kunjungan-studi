@@ -26,15 +26,15 @@ interface BarisKelompok {
 }
 
 /** Modul Kelompok & Peserta — Bab 32 dokumen analisis. */
-export default function HalamanKelompokAdmin({
+export default async function HalamanKelompokAdmin({
   searchParams,
 }: {
   searchParams: { q?: string };
 }) {
-  wajibAdmin();
+  await wajibAdmin();
   const q = (searchParams.q ?? "").trim().toLowerCase();
 
-  const semua = db
+  const semua = await db
     .prepare(
       `SELECT a.id, a.nomor, a.nama_kelompok, a.asal_instansi, a.jenis_instansi,
               a.jumlah_peserta, a.status, a.tanggal_usulan,

@@ -17,12 +17,12 @@ export async function aksiCheckin(_prev: FormState, fd: FormData): Promise<FormS
   const namaManual = teks(fd, "nama_peserta");
   const metode = teks(fd, "metode") || "PILIH_NAMA";
 
-  const qr = db
+  const qr = await db
     .prepare(`SELECT * FROM room_qr_codes WHERE token = ? AND aktif = 1 AND tipe = 'ABSENSI'`)
     .get(token) as RoomQrCode | undefined;
   if (!qr) return { error: "QR Code daftar hadir tidak dikenali atau sudah tidak aktif." };
 
-  const jadwal = db
+  const jadwal = await db
     .prepare(`SELECT * FROM visit_schedules WHERE id = ?`)
     .get(scheduleId) as VisitSchedule | undefined;
   if (!jadwal) return { error: "Jadwal kunjungan tidak ditemukan." };
@@ -37,13 +37,13 @@ export async function aksiCheckin(_prev: FormState, fd: FormData): Promise<FormS
 
   let nama = namaManual;
   if (visitorId) {
-    const peserta = db
+    const peserta = await db
       .prepare(`SELECT * FROM visitors WHERE id = ? AND application_id = ?`)
       .get(visitorId, jadwal.application_id) as Visitor | undefined;
     if (!peserta) return { error: "Peserta tidak terdaftar pada kunjungan ini." };
     nama = peserta.nama;
 
-    const sudah = db
+    const sudah = await db
       .prepare(
         `SELECT id FROM attendance WHERE schedule_id = ? AND visitor_id = ? AND checkout_at IS NULL`
       )
@@ -53,7 +53,7 @@ export async function aksiCheckin(_prev: FormState, fd: FormData): Promise<FormS
     return { error: "Pilih nama peserta atau isi nama secara manual." };
   }
 
-  db.prepare(
+  await db.prepare(
     `INSERT INTO attendance
        (schedule_id, application_id, room_id, visitor_id, nama_peserta, metode)
      VALUES (?, ?, ?, ?, ?, ?)`
@@ -61,14 +61,14 @@ export async function aksiCheckin(_prev: FormState, fd: FormData): Promise<FormS
 
   // Kunjungan yang sudah ada kehadirannya otomatis berstatus berlangsung
   if (jadwal.status === "TERJADWAL") {
-    db.prepare(`UPDATE visit_schedules SET status = 'BERLANGSUNG' WHERE id = ?`).run(scheduleId);
-    db.prepare(
+    await db.prepare(`UPDATE visit_schedules SET status = 'BERLANGSUNG' WHERE id = ?`).run(scheduleId);
+    await db.prepare(
       `UPDATE visit_applications SET status = 'BERLANGSUNG', updated_at = datetime('now')
         WHERE id = ? AND status IN ('DITERIMA','DIJADWALKAN')`
     ).run(jadwal.application_id);
   }
 
-  catatAudit({
+  await catatAudit({
     aktor: nama,
     aksi: "CHECKIN",
     entitas: "ATTENDANCE",
@@ -85,15 +85,15 @@ export async function aksiCheckout(_prev: FormState, fd: FormData): Promise<Form
   const token = teks(fd, "token");
   const attendanceId = Number(teks(fd, "attendance_id"));
 
-  const baris = db
+  const baris = await db
     .prepare(`SELECT nama_peserta, checkout_at FROM attendance WHERE id = ?`)
     .get(attendanceId) as { nama_peserta: string; checkout_at: string | null } | undefined;
   if (!baris) return { error: "Data kehadiran tidak ditemukan." };
   if (baris.checkout_at) return { error: "Peserta sudah melakukan check-out." };
 
-  db.prepare(`UPDATE attendance SET checkout_at = datetime('now') WHERE id = ?`).run(attendanceId);
+  await db.prepare(`UPDATE attendance SET checkout_at = datetime('now') WHERE id = ?`).run(attendanceId);
 
-  catatAudit({
+  await catatAudit({
     aktor: baris.nama_peserta,
     aksi: "CHECKOUT",
     entitas: "ATTENDANCE",

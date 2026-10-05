@@ -10,10 +10,10 @@ import { aksiBacaSemuaNotifikasiAdmin } from "../actions";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Notifikasi" };
 
-export default function NotifikasiAdmin() {
-  const admin = wajibAdmin();
+export default async function NotifikasiAdmin() {
+  const admin = await wajibAdmin();
 
-  const daftar = db
+  const daftar = await db
     .prepare(`SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 100`)
     .all(admin.id) as Notification[];
 

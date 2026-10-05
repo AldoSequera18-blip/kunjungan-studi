@@ -17,10 +17,10 @@ const TIPE: Record<string, string> = {
 
 /** Unduh surat kunjungan — hanya pemilik permohonan dan admin (Aturan Bisnis no. 2). */
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
-  const u = penggunaSaatIni();
+  const u = await penggunaSaatIni();
   if (!u) return new NextResponse("Tidak diizinkan", { status: 401 });
 
-  const dok = db
+  const dok = await db
     .prepare(
       `SELECT d.*, a.user_id FROM documents d
          JOIN visit_applications a ON a.id = d.application_id

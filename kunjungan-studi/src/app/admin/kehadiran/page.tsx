@@ -24,20 +24,20 @@ interface BarisHadir {
 }
 
 /** Modul Daftar Hadir — Bab 35 dokumen analisis. */
-export default function HalamanKehadiranAdmin({
+export default async function HalamanKehadiranAdmin({
   searchParams,
 }: {
   searchParams: { tanggal?: string; ruangan?: string; q?: string };
 }) {
-  wajibAdmin();
+  await wajibAdmin();
 
   const tanggal = searchParams.tanggal || hariIniISO();
   const ruanganId = searchParams.ruangan ? Number(searchParams.ruangan) : 0;
   const q = (searchParams.q ?? "").trim().toLowerCase();
 
-  const ruangan = db.prepare(`SELECT * FROM rooms ORDER BY kode`).all() as Room[];
+  const ruangan = await db.prepare(`SELECT * FROM rooms ORDER BY kode`).all() as Room[];
 
-  let baris = db
+  let baris = await db
     .prepare(
       `SELECT t.id, t.nama_peserta, t.metode, t.checkin_at, t.checkout_at,
               s.tanggal, a.nomor, a.nama_kelompok, a.asal_instansi,

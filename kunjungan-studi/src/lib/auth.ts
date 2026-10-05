@@ -18,11 +18,11 @@ export function cekPassword(pwd: string, hash: string): boolean {
 }
 
 /** Membuat sesi baru dan menyimpan cookie httpOnly. */
-export function buatSesi(userId: number) {
+export async function buatSesi(userId: number) {
   const id = crypto.randomBytes(32).toString("hex");
   const kadaluarsa = new Date(Date.now() + MASA_BERLAKU_HARI * 864e5);
 
-  db.prepare(`INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)`).run(
+  await db.prepare(`INSERT INTO sessions (id, user_id, expires_at) VALUES (?, ?, ?)`).run(
     id,
     userId,
     kadaluarsa.toISOString()
@@ -37,28 +37,28 @@ export function buatSesi(userId: number) {
   });
 }
 
-export function hapusSesi() {
+export async function hapusSesi() {
   const id = cookies().get(COOKIE)?.value;
-  if (id) db.prepare(`DELETE FROM sessions WHERE id = ?`).run(id);
+  if (id) await db.prepare(`DELETE FROM sessions WHERE id = ?`).run(id);
   cookies().delete(COOKIE);
 }
 
 /** Mengambil user yang sedang login, atau null. */
-export function penggunaSaatIni(): SessionUser | null {
+export async function penggunaSaatIni(): Promise<SessionUser | null> {
   const id = cookies().get(COOKIE)?.value;
   if (!id) return null;
 
-  const sesi = db
+  const sesi = await db
     .prepare(`SELECT user_id, expires_at FROM sessions WHERE id = ?`)
     .get(id) as { user_id: number; expires_at: string } | undefined;
 
   if (!sesi) return null;
   if (new Date(sesi.expires_at) < new Date()) {
-    db.prepare(`DELETE FROM sessions WHERE id = ?`).run(id);
+    await db.prepare(`DELETE FROM sessions WHERE id = ?`).run(id);
     return null;
   }
 
-  const user = db
+  const user = await db
     .prepare(`SELECT * FROM users WHERE id = ? AND aktif = 1`)
     .get(sesi.user_id) as User | undefined;
   if (!user) return null;
@@ -68,22 +68,22 @@ export function penggunaSaatIni(): SessionUser | null {
 }
 
 /** Wajib login (peran apa pun). */
-export function wajibLogin(): SessionUser {
-  const u = penggunaSaatIni();
+export async function wajibLogin(): Promise<SessionUser> {
+  const u = await penggunaSaatIni();
   if (!u) redirect("/login");
   return u;
 }
 
 /** Wajib login sebagai pemohon. */
-export function wajibPemohon(): SessionUser {
-  const u = wajibLogin();
+export async function wajibPemohon(): Promise<SessionUser> {
+  const u = await wajibLogin();
   if (u.role !== "PEMOHON") redirect("/admin");
   return u;
 }
 
 /** Wajib login sebagai admin — Bab 43 aturan hak akses. */
-export function wajibAdmin(): SessionUser {
-  const u = wajibLogin();
+export async function wajibAdmin(): Promise<SessionUser> {
+  const u = await wajibLogin();
   if (u.role !== "ADMIN") redirect("/dashboard");
   return u;
 }

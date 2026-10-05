@@ -15,8 +15,8 @@ interface BarisJadwal {
 }
 
 /** Halaman Informasi Kunjungan Studi — Bab 7 dokumen analisis. */
-export default function HalamanInformasi() {
-  const jadwal = db
+export default async function HalamanInformasi() {
+  const jadwal = await db
     .prepare(
       `SELECT s.tanggal, s.waktu_mulai, s.waktu_selesai, s.status,
               a.nama_kelompok, r.nama AS nama_ruangan
@@ -31,7 +31,7 @@ export default function HalamanInformasi() {
     .all() as BarisJadwal[];
 
   const jumlahRuangan = (
-    db.prepare(`SELECT COUNT(*) AS n FROM rooms WHERE status = 'TERSEDIA'`).get() as { n: number }
+    await db.prepare(`SELECT COUNT(*) AS n FROM rooms WHERE status = 'TERSEDIA'`).get() as { n: number }
   ).n;
 
   return (

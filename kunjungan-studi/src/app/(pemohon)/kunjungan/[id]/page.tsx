@@ -19,21 +19,21 @@ import PanelSurat from "./PanelSurat";
 
 export const dynamic = "force-dynamic";
 
-export default function DetailKunjungan({ params }: { params: { id: string } }) {
-  const user = wajibPemohon();
+export default async function DetailKunjungan({ params }: { params: { id: string } }) {
+  const user = await wajibPemohon();
   const id = Number(params.id);
 
   // Aturan Bisnis no. 2 — pemohon hanya melihat kunjungan miliknya sendiri
-  const app = db
+  const app = await db
     .prepare(`SELECT * FROM visit_applications WHERE id = ? AND user_id = ?`)
     .get(id, user.id) as VisitApplication | undefined;
   if (!app) notFound();
 
-  const peserta = db
+  const peserta = await db
     .prepare(`SELECT * FROM visitors WHERE application_id = ? ORDER BY jenis DESC, nama`)
     .all(id) as Visitor[];
 
-  const jadwal = db
+  const jadwal = await db
     .prepare(
       `SELECT s.*, r.nama AS nama_ruangan, r.kode AS kode_ruangan, r.lokasi
          FROM visit_schedules s JOIN rooms r ON r.id = s.room_id
@@ -45,7 +45,7 @@ export default function DetailKunjungan({ params }: { params: { id: string } }) 
     lokasi: string | null;
   })[];
 
-  const kehadiran = db
+  const kehadiran = await db
     .prepare(
       `SELECT t.*, r.nama AS nama_ruangan FROM attendance t
          JOIN rooms r ON r.id = t.room_id
@@ -53,14 +53,14 @@ export default function DetailKunjungan({ params }: { params: { id: string } }) 
     )
     .all(id) as (Attendance & { nama_ruangan: string })[];
 
-  const surat = db
+  const surat = await db
     .prepare(
       `SELECT id, nama_file, created_at FROM documents
         WHERE application_id = ? AND jenis = 'SURAT_PERMOHONAN' ORDER BY id DESC LIMIT 1`
     )
     .get(id) as { id: number; nama_file: string; created_at: string } | undefined;
 
-  const semuaRuangan = db
+  const semuaRuangan = await db
     .prepare(`SELECT * FROM rooms WHERE status != 'TIDAK_AKTIF' ORDER BY kode`)
     .all() as Room[];
 

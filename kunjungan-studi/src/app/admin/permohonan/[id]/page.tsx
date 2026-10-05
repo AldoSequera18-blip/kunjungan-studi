@@ -16,11 +16,11 @@ import PanelVerifikasi from "./PanelVerifikasi";
 
 export const dynamic = "force-dynamic";
 
-export default function DetailPermohonanAdmin({ params }: { params: { id: string } }) {
-  wajibAdmin();
+export default async function DetailPermohonanAdmin({ params }: { params: { id: string } }) {
+  await wajibAdmin();
   const id = Number(params.id);
 
-  const app = db
+  const app = await db
     .prepare(
       `SELECT a.*, u.nama AS nama_pemohon, u.email, u.telepon, u.instansi, u.alamat
          FROM visit_applications a JOIN users u ON u.id = a.user_id
@@ -37,15 +37,15 @@ export default function DetailPermohonanAdmin({ params }: { params: { id: string
     | undefined;
   if (!app) notFound();
 
-  const peserta = db
+  const peserta = await db
     .prepare(`SELECT * FROM visitors WHERE application_id = ? ORDER BY jenis DESC, nama`)
     .all(id) as Visitor[];
 
-  const dokumen = db
+  const dokumen = await db
     .prepare(`SELECT * FROM documents WHERE application_id = ? ORDER BY created_at`)
     .all(id) as { id: number; jenis: string; nama_file: string; url: string | null }[];
 
-  const jadwal = db
+  const jadwal = await db
     .prepare(
       `SELECT s.*, r.nama AS nama_ruangan, r.kode AS kode_ruangan, r.kapasitas
          FROM visit_schedules s JOIN rooms r ON r.id = s.room_id
@@ -57,7 +57,7 @@ export default function DetailPermohonanAdmin({ params }: { params: { id: string
     kapasitas: number;
   })[];
 
-  const kehadiran = db
+  const kehadiran = await db
     .prepare(
       `SELECT t.*, r.nama AS nama_ruangan FROM attendance t JOIN rooms r ON r.id = t.room_id
         WHERE t.application_id = ? ORDER BY t.checkin_at DESC`

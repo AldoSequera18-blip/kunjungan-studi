@@ -37,10 +37,10 @@ interface BarisJadwal {
 }
 
 /** Modul Jadwal — Bab 33 dokumen analisis. */
-export default function HalamanJadwalAdmin() {
-  wajibAdmin();
+export default async function HalamanJadwalAdmin() {
+  await wajibAdmin();
 
-  const jadwal = db
+  const jadwal = await db
     .prepare(
       `SELECT s.*, a.nomor, a.nama_kelompok, a.jumlah_peserta,
               r.nama AS nama_ruangan, r.kode AS kode_ruangan, r.kapasitas,
@@ -108,7 +108,7 @@ export default function HalamanJadwalAdmin() {
     };
   });
 
-  const kunjunganTidakResmi = db.prepare(
+  const kunjunganTidakResmi = await db.prepare(
     `SELECT id, nomor, nama_kelompok, jumlah_peserta, tanggal_usulan, waktu_mulai_usulan,
             waktu_selesai_usulan, status
        FROM visit_applications

@@ -2,19 +2,19 @@ import AppShell, { type MenuItem } from "@/components/AppShell";
 import { wajibAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 
-export default function LayoutAdmin({ children }: { children: React.ReactNode }) {
-  const user = wajibAdmin();
+export default async function LayoutAdmin({ children }: { children: React.ReactNode }) {
+  const user = await wajibAdmin();
 
-  const hitung = (sql: string) => (db.prepare(sql).get() as { n: number }).n;
+  const hitung = async (sql: string) => (await db.prepare(sql).get() as { n: number }).n;
 
-  const permohonanBaru = hitung(
+  const permohonanBaru = await hitung(
     `SELECT COUNT(*) AS n FROM visit_applications WHERE status IN ('DIAJUKAN','DALAM_VERIFIKASI')`
   );
-  const pengaduanBaru = hitung(
+  const pengaduanBaru = await hitung(
     `SELECT COUNT(*) AS n FROM facility_reports WHERE status IN ('DIAJUKAN','DIVERIFIKASI')`
   );
   const notifBelumDibaca = (
-    db
+    await db
       .prepare(`SELECT COUNT(*) AS n FROM notifications WHERE user_id = ? AND dibaca = 0`)
       .get(user.id) as { n: number }
   ).n;

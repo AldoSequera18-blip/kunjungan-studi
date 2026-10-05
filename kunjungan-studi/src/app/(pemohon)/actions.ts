@@ -23,9 +23,9 @@ import type { FormState, VisitApplication } from "@/lib/types";
 /** Status permohonan yang masih boleh diubah oleh pemohon — Bab 26. */
 const BOLEH_DIUBAH = ["DRAFT", "PERLU_PERBAIKAN"];
 
-function ambilPermohonanMilikSaya(id: number, userId: number): VisitApplication | undefined {
+async function ambilPermohonanMilikSaya(id: number, userId: number): Promise<VisitApplication | undefined> {
   // Aturan Bisnis no. 2: pemohon hanya melihat data yang menjadi kewenangannya
-  return db
+  return await db
     .prepare(`SELECT * FROM visit_applications WHERE id = ? AND user_id = ?`)
     .get(id, userId) as VisitApplication | undefined;
 }
@@ -80,8 +80,8 @@ function periksaBerkasSurat(fd: FormData): File | null | string {
 }
 
 /** Menghapus semua surat milik sebuah permohonan (berkas dan barisnya). */
-function hapusSuratLama(applicationId: number) {
-  const lama = db
+async function hapusSuratLama(applicationId: number) {
+  const lama = await db
     .prepare(`SELECT id, berkas FROM documents WHERE application_id = ? AND jenis = 'SURAT_PERMOHONAN'`)
     .all(applicationId) as { id: number; berkas: string | null }[];
   for (const l of lama) {
@@ -92,7 +92,7 @@ function hapusSuratLama(applicationId: number) {
         /* berkas sudah tidak ada */
       }
     }
-    db.prepare(`DELETE FROM documents WHERE id = ?`).run(l.id);
+    await db.prepare(`DELETE FROM documents WHERE id = ?`).run(l.id);
   }
 }
 
@@ -103,13 +103,13 @@ async function simpanSurat(applicationId: number, file: File) {
   const berkas = `${applicationId}-${Date.now()}${ext}`;
   fs.writeFileSync(path.join(DIR_SURAT, berkas), Buffer.from(await file.arrayBuffer()));
 
-  hapusSuratLama(applicationId);
-  const info = db
+  await hapusSuratLama(applicationId);
+  const info = await db
     .prepare(
       `INSERT INTO documents (application_id, jenis, nama_file, berkas) VALUES (?, 'SURAT_PERMOHONAN', ?, ?)`
     )
     .run(applicationId, file.name.slice(0, 200), berkas);
-  db.prepare(`UPDATE documents SET url = ? WHERE id = ?`).run(
+  await db.prepare(`UPDATE documents SET url = ? WHERE id = ?`).run(
     `/api/surat/${info.lastInsertRowid}`,
     info.lastInsertRowid
   );
@@ -122,20 +122,20 @@ function ruanganDipilih(fd: FormData): number[] {
 }
 
 /** Memeriksa ruangan yang dipilih pemohon terhadap jadwal yang sudah dikonfirmasi. */
-function periksaRuangan(ids: number[], fd: FormData, applicationId?: number): string | null {
+async function periksaRuangan(ids: number[], fd: FormData, applicationId?: number): Promise<string | null> {
   if (ids.length === 0) return "Pilih minimal satu ruangan yang akan dikunjungi.";
   const tanggal = teks(fd, "tanggal_usulan");
   const mulai = teks(fd, "waktu_mulai_usulan");
   const selesai = teks(fd, "waktu_selesai_usulan");
 
   for (const rid of ids) {
-    const r = db.prepare(`SELECT nama, status FROM rooms WHERE id = ?`).get(rid) as
+    const r = await db.prepare(`SELECT nama, status FROM rooms WHERE id = ?`).get(rid) as
       | { nama: string; status: string }
       | undefined;
     if (!r) return "Ruangan yang dipilih tidak ditemukan.";
     if (r.status !== "TERSEDIA") return `Ruangan ${r.nama} sedang tidak tersedia (${r.status}).`;
 
-    const terpakai = db
+    const terpakai = await db
       .prepare(
         `SELECT s.waktu_mulai, s.waktu_selesai FROM visit_schedules s
           WHERE s.room_id = ? AND s.tanggal = ?
@@ -152,8 +152,8 @@ function periksaRuangan(ids: number[], fd: FormData, applicationId?: number): st
 }
 
 /** Menyimpan usulan jadwal & ruangan; menggantikan usulan sebelumnya. */
-function simpanUsulanRuangan(applicationId: number, ids: number[], fd: FormData, pj: string | null) {
-  db.prepare(`DELETE FROM visit_schedules WHERE application_id = ? AND status = 'DIUSULKAN'`).run(applicationId);
+async function simpanUsulanRuangan(applicationId: number, ids: number[], fd: FormData, pj: string | null) {
+  await db.prepare(`DELETE FROM visit_schedules WHERE application_id = ? AND status = 'DIUSULKAN'`).run(applicationId);
   const ins = db.prepare(
     `INSERT INTO visit_schedules
        (application_id, room_id, tanggal, waktu_mulai, waktu_selesai, penanggung_jawab, status)
@@ -172,7 +172,7 @@ function simpanUsulanRuangan(applicationId: number, ids: number[], fd: FormData,
 }
 
 export async function aksiBuatPermohonan(_prev: FormState, fd: FormData): Promise<FormState> {
-  const user = wajibPemohon();
+  const user = await wajibPemohon();
   const jenisKunjungan = teks(fd, "jenis_kunjungan") === "TIDAK_RESMI" ? "TIDAK_RESMI" : "RESMI";
 
   const galat = validasiPermohonan(fd);
@@ -182,12 +182,12 @@ export async function aksiBuatPermohonan(_prev: FormState, fd: FormData): Promis
   if (typeof surat === "string") return { error: surat };
 
   const ruangan = jenisKunjungan === "RESMI" ? ruanganDipilih(fd) : [];
-  const galatRuangan = jenisKunjungan === "RESMI" ? periksaRuangan(ruangan, fd) : null;
+  const galatRuangan = jenisKunjungan === "RESMI" ? await periksaRuangan(ruangan, fd) : null;
   if (galatRuangan) return { error: galatRuangan };
 
-  const nomor = buatNomorKunjungan();
+  const nomor = await buatNomorKunjungan();
 
-  const info = db
+  const info = await db
     .prepare(
       `INSERT INTO visit_applications
          (nomor, user_id, jenis_kunjungan, nama_kelompok, asal_instansi, jenis_instansi, jumlah_peserta, tujuan,
@@ -216,9 +216,9 @@ export async function aksiBuatPermohonan(_prev: FormState, fd: FormData): Promis
   const id = Number(info.lastInsertRowid);
 
   if (surat) await simpanSurat(id, surat);
-  if (jenisKunjungan === "RESMI") simpanUsulanRuangan(id, ruangan, fd, teks(fd, "penanggung_jawab") || user.nama);
+  if (jenisKunjungan === "RESMI") await simpanUsulanRuangan(id, ruangan, fd, teks(fd, "penanggung_jawab") || user.nama);
 
-  catatAudit({
+  await catatAudit({
     userId: user.id,
     aktor: user.nama,
     aksi: "BUAT_PERMOHONAN",
@@ -232,10 +232,10 @@ export async function aksiBuatPermohonan(_prev: FormState, fd: FormData): Promis
 }
 
 export async function aksiUbahPermohonan(_prev: FormState, fd: FormData): Promise<FormState> {
-  const user = wajibPemohon();
+  const user = await wajibPemohon();
   const id = angka(fd, "id");
 
-  const app = ambilPermohonanMilikSaya(id, user.id);
+  const app = await ambilPermohonanMilikSaya(id, user.id);
   if (!app) return { error: "Permohonan tidak ditemukan." };
   if (!BOLEH_DIUBAH.includes(app.status)) {
     return { error: "Permohonan pada status ini tidak dapat diubah lagi." };
@@ -246,10 +246,10 @@ export async function aksiUbahPermohonan(_prev: FormState, fd: FormData): Promis
   if (galat) return { error: galat };
 
   const ruangan = jenisKunjungan === "RESMI" ? ruanganDipilih(fd) : [];
-  const galatRuangan = jenisKunjungan === "RESMI" ? periksaRuangan(ruangan, fd, id) : null;
+  const galatRuangan = jenisKunjungan === "RESMI" ? await periksaRuangan(ruangan, fd, id) : null;
   if (galatRuangan) return { error: galatRuangan };
 
-  db.prepare(
+  await db.prepare(
     `UPDATE visit_applications SET
        jenis_kunjungan = ?, nama_kelompok = ?, asal_instansi = ?, jenis_instansi = ?, jumlah_peserta = ?,
        tujuan = ?, tanggal_usulan = ?, waktu_mulai_usulan = ?, waktu_selesai_usulan = ?,
@@ -271,10 +271,10 @@ export async function aksiUbahPermohonan(_prev: FormState, fd: FormData): Promis
     id
   );
 
-  if (jenisKunjungan === "RESMI") simpanUsulanRuangan(id, ruangan, fd, teks(fd, "penanggung_jawab") || null);
-  else db.prepare(`DELETE FROM visit_schedules WHERE application_id = ? AND status = 'DIUSULKAN'`).run(id);
+  if (jenisKunjungan === "RESMI") await simpanUsulanRuangan(id, ruangan, fd, teks(fd, "penanggung_jawab") || null);
+  else await db.prepare(`DELETE FROM visit_schedules WHERE application_id = ? AND status = 'DIUSULKAN'`).run(id);
 
-  catatAudit({
+  await catatAudit({
     userId: user.id,
     aktor: user.nama,
     aksi: "UBAH_PERMOHONAN",
@@ -288,22 +288,22 @@ export async function aksiUbahPermohonan(_prev: FormState, fd: FormData): Promis
 }
 
 export async function aksiAjukanPermohonan(_prev: FormState, fd: FormData): Promise<FormState> {
-  const user = wajibPemohon();
+  const user = await wajibPemohon();
   const id = angka(fd, "id");
 
-  const app = ambilPermohonanMilikSaya(id, user.id);
+  const app = await ambilPermohonanMilikSaya(id, user.id);
   if (!app) return { error: "Permohonan tidak ditemukan." };
   if (!BOLEH_DIUBAH.includes(app.status)) {
     return { error: "Permohonan ini sudah diajukan sebelumnya." };
   }
 
   const jumlahPeserta = (
-    db
+    await db
       .prepare(`SELECT COUNT(*) AS n FROM visitors WHERE application_id = ?`)
       .get(id) as { n: number }
   ).n;
   const jumlahRuangan = (
-    db
+    await db
       .prepare(`SELECT COUNT(*) AS n FROM visit_schedules WHERE application_id = ? AND status = 'DIUSULKAN'`)
       .get(id) as { n: number }
   ).n;
@@ -314,11 +314,11 @@ export async function aksiAjukanPermohonan(_prev: FormState, fd: FormData): Prom
     return { error: "Lengkapi data peserta terlebih dahulu sebelum mengajukan permohonan." };
   }
 
-  db.prepare(
+  await db.prepare(
     `UPDATE visit_applications SET status = 'DIAJUKAN', updated_at = datetime('now') WHERE id = ?`
   ).run(id);
 
-  catatAudit({
+  await catatAudit({
     userId: user.id,
     aktor: user.nama,
     aksi: "AJUKAN_PERMOHONAN",
@@ -327,7 +327,7 @@ export async function aksiAjukanPermohonan(_prev: FormState, fd: FormData): Prom
     detail: `${app.nomor} diajukan untuk verifikasi`,
   });
 
-  kirimNotifikasiAdmin({
+  await kirimNotifikasiAdmin({
     judul: "Permohonan kunjungan baru",
     pesan: `${app.nomor} dari ${app.asal_instansi} menunggu verifikasi.`,
     link: `/admin/permohonan/${id}`,
@@ -339,23 +339,23 @@ export async function aksiAjukanPermohonan(_prev: FormState, fd: FormData): Prom
 }
 
 export async function aksiBatalkanPermohonan(_prev: FormState, fd: FormData): Promise<FormState> {
-  const user = wajibPemohon();
+  const user = await wajibPemohon();
   const id = angka(fd, "id");
 
-  const app = ambilPermohonanMilikSaya(id, user.id);
+  const app = await ambilPermohonanMilikSaya(id, user.id);
   if (!app) return { error: "Permohonan tidak ditemukan." };
   if (["SELESAI", "DIBATALKAN", "BERLANGSUNG"].includes(app.status)) {
     return { error: "Permohonan pada status ini tidak dapat dibatalkan." };
   }
 
-  db.prepare(
+  await db.prepare(
     `UPDATE visit_applications SET status = 'DIBATALKAN', updated_at = datetime('now') WHERE id = ?`
   ).run(id);
-  db.prepare(
+  await db.prepare(
     `UPDATE visit_schedules SET status = 'DIBATALKAN' WHERE application_id = ? AND status IN ('TERJADWAL','DIUSULKAN')`
   ).run(id);
 
-  catatAudit({
+  await catatAudit({
     userId: user.id,
     aktor: user.nama,
     aksi: "BATALKAN_PERMOHONAN",
@@ -364,7 +364,7 @@ export async function aksiBatalkanPermohonan(_prev: FormState, fd: FormData): Pr
     detail: app.nomor,
   });
 
-  kirimNotifikasiAdmin({
+  await kirimNotifikasiAdmin({
     judul: "Permohonan dibatalkan pemohon",
     pesan: `${app.nomor} — ${app.nama_kelompok} dibatalkan oleh pemohon.`,
     link: `/admin/permohonan/${id}`,
@@ -379,10 +379,10 @@ export async function aksiBatalkanPermohonan(_prev: FormState, fd: FormData): Pr
 /* ================================================================= */
 
 export async function aksiTambahPeserta(_prev: FormState, fd: FormData): Promise<FormState> {
-  const user = wajibPemohon();
+  const user = await wajibPemohon();
   const applicationId = angka(fd, "application_id");
 
-  const app = ambilPermohonanMilikSaya(applicationId, user.id);
+  const app = await ambilPermohonanMilikSaya(applicationId, user.id);
   if (!app) return { error: "Permohonan tidak ditemukan." };
   if (["SELESAI", "DIBATALKAN", "DITOLAK"].includes(app.status)) {
     return { error: "Data peserta tidak dapat diubah pada status permohonan ini." };
@@ -391,7 +391,7 @@ export async function aksiTambahPeserta(_prev: FormState, fd: FormData): Promise
   const nama = teks(fd, "nama");
   if (!nama) return { error: "Nama peserta wajib diisi." };
 
-  db.prepare(
+  await db.prepare(
     `INSERT INTO visitors (application_id, nama, identitas, jenis, keterangan)
      VALUES (?, ?, ?, ?, ?)`
   ).run(
@@ -402,7 +402,7 @@ export async function aksiTambahPeserta(_prev: FormState, fd: FormData): Promise
     teks(fd, "keterangan") || null
   );
 
-  catatAudit({
+  await catatAudit({
     userId: user.id,
     aktor: user.nama,
     aksi: "TAMBAH_PESERTA",
@@ -417,10 +417,10 @@ export async function aksiTambahPeserta(_prev: FormState, fd: FormData): Promise
 }
 
 export async function aksiHapusPeserta(_prev: FormState, fd: FormData): Promise<FormState> {
-  const user = wajibPemohon();
+  const user = await wajibPemohon();
   const visitorId = angka(fd, "visitor_id");
 
-  const baris = db
+  const baris = await db
     .prepare(
       `SELECT v.id, v.nama, v.application_id, a.status, a.nomor
          FROM visitors v JOIN visit_applications a ON a.id = v.application_id
@@ -435,9 +435,9 @@ export async function aksiHapusPeserta(_prev: FormState, fd: FormData): Promise<
     return { error: "Data peserta tidak dapat dihapus pada status permohonan ini." };
   }
 
-  db.prepare(`DELETE FROM visitors WHERE id = ?`).run(visitorId);
+  await db.prepare(`DELETE FROM visitors WHERE id = ?`).run(visitorId);
 
-  catatAudit({
+  await catatAudit({
     userId: user.id,
     aktor: user.nama,
     aksi: "HAPUS_PESERTA",
@@ -456,7 +456,7 @@ export async function aksiHapusPeserta(_prev: FormState, fd: FormData): Promise<
 /* ================================================================= */
 
 export async function aksiUbahProfil(_prev: FormState, fd: FormData): Promise<FormState> {
-  const user = wajibPemohon();
+  const user = await wajibPemohon();
 
   const nama = teks(fd, "nama");
   const email = teks(fd, "email").toLowerCase();
@@ -466,16 +466,16 @@ export async function aksiUbahProfil(_prev: FormState, fd: FormData): Promise<Fo
   if (!emailValid(email)) return { error: "Format email tidak valid." };
   if (!teleponValid(telepon)) return { error: "Format nomor telepon tidak valid." };
 
-  const bentrok = db
+  const bentrok = await db
     .prepare(`SELECT id FROM users WHERE email = ? AND id != ?`)
     .get(email, user.id);
   if (bentrok) return { error: "Email tersebut sudah digunakan akun lain." };
 
-  db.prepare(
+  await db.prepare(
     `UPDATE users SET nama = ?, email = ?, telepon = ?, instansi = ?, alamat = ? WHERE id = ?`
   ).run(nama, email, telepon, teks(fd, "instansi") || null, teks(fd, "alamat") || null, user.id);
 
-  catatAudit({
+  await catatAudit({
     userId: user.id,
     aktor: nama,
     aksi: "UBAH_PROFIL",
@@ -492,7 +492,7 @@ export async function aksiUbahProfil(_prev: FormState, fd: FormData): Promise<Fo
 /* ================================================================= */
 
 export async function aksiPengaduanDariMenu(_prev: FormState, fd: FormData): Promise<FormState> {
-  const user = wajibPemohon();
+  const user = await wajibPemohon();
 
   const roomId = angka(fd, "room_id");
   const kategori = teks(fd, "kategori");
@@ -504,13 +504,13 @@ export async function aksiPengaduanDariMenu(_prev: FormState, fd: FormData): Pro
   if (!kategori) return { error: "Kategori fasilitas wajib dipilih." };
   if (deskripsi.length < 10) return { error: "Deskripsi masalah minimal 10 karakter." };
 
-  const room = db.prepare(`SELECT nama FROM rooms WHERE id = ?`).get(roomId) as
+  const room = await db.prepare(`SELECT nama FROM rooms WHERE id = ?`).get(roomId) as
     | { nama: string }
     | undefined;
   if (!room) return { error: "Ruangan tidak ditemukan." };
 
-  const nomor = buatNomorPengaduan();
-  const info = db
+  const nomor = await buatNomorPengaduan();
+  const info = await db
     .prepare(
       `INSERT INTO facility_reports
          (nomor, room_id, application_id, kategori, deskripsi, urgensi,
@@ -520,12 +520,12 @@ export async function aksiPengaduanDariMenu(_prev: FormState, fd: FormData): Pro
     .run(nomor, roomId, applicationId, kategori, deskripsi, urgensi, user.nama, user.telepon);
 
   const reportId = Number(info.lastInsertRowid);
-  db.prepare(
+  await db.prepare(
     `INSERT INTO report_actions (report_id, status_dari, status_ke, catatan)
      VALUES (?, NULL, 'DIAJUKAN', 'Pengaduan dibuat melalui menu pemohon')`
   ).run(reportId);
 
-  catatAudit({
+  await catatAudit({
     userId: user.id,
     aktor: user.nama,
     aksi: "BUAT_PENGADUAN",
@@ -534,7 +534,7 @@ export async function aksiPengaduanDariMenu(_prev: FormState, fd: FormData): Pro
     detail: `${nomor} — ${room.nama} — ${kategori}`,
   });
 
-  kirimNotifikasiAdmin({
+  await kirimNotifikasiAdmin({
     judul: "Pengaduan fasilitas baru",
     pesan: `${nomor} pada ${room.nama} — kategori ${kategori}.`,
     link: `/admin/pengaduan/${reportId}`,
@@ -549,8 +549,8 @@ export async function aksiPengaduanDariMenu(_prev: FormState, fd: FormData): Pro
 /* ================================================================= */
 
 export async function aksiBacaSemuaNotifikasi(): Promise<void> {
-  const user = wajibPemohon();
-  db.prepare(`UPDATE notifications SET dibaca = 1 WHERE user_id = ?`).run(user.id);
+  const user = await wajibPemohon();
+  await db.prepare(`UPDATE notifications SET dibaca = 1 WHERE user_id = ?`).run(user.id);
   revalidatePath("/notifikasi");
 }
 
@@ -559,10 +559,10 @@ export async function aksiBacaSemuaNotifikasi(): Promise<void> {
 /* ================================================================= */
 
 export async function aksiUnggahSurat(_prev: FormState, fd: FormData): Promise<FormState> {
-  const user = wajibPemohon();
+  const user = await wajibPemohon();
   const id = angka(fd, "id");
 
-  const app = ambilPermohonanMilikSaya(id, user.id);
+  const app = await ambilPermohonanMilikSaya(id, user.id);
   if (!app) return { error: "Permohonan tidak ditemukan." };
   if (app.jenis_kunjungan !== "RESMI") return { error: "Unggah surat hanya tersedia untuk kunjungan resmi." };
   if (STATUS_TERKUNCI.includes(app.status)) {
@@ -575,7 +575,7 @@ export async function aksiUnggahSurat(_prev: FormState, fd: FormData): Promise<F
 
   await simpanSurat(id, file);
 
-  catatAudit({
+  await catatAudit({
     userId: user.id,
     aktor: user.nama,
     aksi: "UNGGAH_SURAT",
@@ -589,19 +589,19 @@ export async function aksiUnggahSurat(_prev: FormState, fd: FormData): Promise<F
 }
 
 export async function aksiHapusSurat(_prev: FormState, fd: FormData): Promise<FormState> {
-  const user = wajibPemohon();
+  const user = await wajibPemohon();
   const id = angka(fd, "id");
 
-  const app = ambilPermohonanMilikSaya(id, user.id);
+  const app = await ambilPermohonanMilikSaya(id, user.id);
   if (!app) return { error: "Permohonan tidak ditemukan." };
   if (app.jenis_kunjungan !== "RESMI") return { error: "Pengelolaan surat hanya tersedia untuk kunjungan resmi." };
   if (STATUS_TERKUNCI.includes(app.status)) {
     return { error: "Surat tidak dapat dihapus pada permohonan dengan status ini." };
   }
 
-  hapusSuratLama(id);
+  await hapusSuratLama(id);
 
-  catatAudit({
+  await catatAudit({
     userId: user.id,
     aktor: user.nama,
     aksi: "HAPUS_SURAT",
@@ -632,7 +632,7 @@ function hapusBerkasFoto(nama: string | null | undefined) {
 }
 
 export async function aksiUnggahFoto(_prev: FormState, fd: FormData): Promise<FormState> {
-  const user = wajibPemohon();
+  const user = await wajibPemohon();
 
   const file = fd.get("foto");
   if (!(file instanceof File) || file.size === 0) return { error: "Pilih foto terlebih dahulu." };
@@ -647,9 +647,9 @@ export async function aksiUnggahFoto(_prev: FormState, fd: FormData): Promise<Fo
   fs.writeFileSync(path.join(DIR_FOTO, nama), Buffer.from(await file.arrayBuffer()));
 
   hapusBerkasFoto(user.foto);
-  db.prepare(`UPDATE users SET foto = ? WHERE id = ?`).run(nama, user.id);
+  await db.prepare(`UPDATE users SET foto = ? WHERE id = ?`).run(nama, user.id);
 
-  catatAudit({
+  await catatAudit({
     userId: user.id,
     aktor: user.nama,
     aksi: "UBAH_FOTO_PROFIL",
@@ -662,13 +662,13 @@ export async function aksiUnggahFoto(_prev: FormState, fd: FormData): Promise<Fo
 }
 
 export async function aksiHapusFoto(_prev: FormState, _fd: FormData): Promise<FormState> {
-  const user = wajibPemohon();
+  const user = await wajibPemohon();
   if (!user.foto) return { error: "Belum ada foto profil." };
 
   hapusBerkasFoto(user.foto);
-  db.prepare(`UPDATE users SET foto = NULL WHERE id = ?`).run(user.id);
+  await db.prepare(`UPDATE users SET foto = NULL WHERE id = ?`).run(user.id);
 
-  catatAudit({
+  await catatAudit({
     userId: user.id,
     aktor: user.nama,
     aksi: "HAPUS_FOTO_PROFIL",

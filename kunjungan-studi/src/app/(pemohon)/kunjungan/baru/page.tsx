@@ -6,9 +6,9 @@ import FormPermohonan from "../FormPermohonan";
 
 export const metadata = { title: "Ajukan Kunjungan" };
 
-export default function HalamanPermohonanBaru() {
-  const user = wajibPemohon();
-  const ruangan = db.prepare(`SELECT * FROM rooms WHERE status != 'TIDAK_AKTIF' ORDER BY kode`).all() as Room[];
+export default async function HalamanPermohonanBaru() {
+  const user = await wajibPemohon();
+  const ruangan = await db.prepare(`SELECT * FROM rooms WHERE status != 'TIDAK_AKTIF' ORDER BY kode`).all() as Room[];
 
   return (
     <div className="space-y-6">

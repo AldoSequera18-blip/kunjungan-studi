@@ -27,14 +27,14 @@ interface BarisPengaduan {
 }
 
 /** Menu Pengaduan Fasilitas pemohon — Bab 28 dokumen analisis. */
-export default function HalamanPengaduanPemohon() {
-  const user = wajibPemohon();
+export default async function HalamanPengaduanPemohon() {
+  const user = await wajibPemohon();
 
-  const ruangan = db
+  const ruangan = await db
     .prepare(`SELECT * FROM rooms WHERE status != 'TIDAK_AKTIF' ORDER BY kode`)
     .all() as Room[];
 
-  const kunjungan = db
+  const kunjungan = await db
     .prepare(
       `SELECT id, nomor, nama_kelompok FROM visit_applications
         WHERE user_id = ? AND status IN ('DITERIMA','DIJADWALKAN','BERLANGSUNG','SELESAI')
@@ -42,7 +42,7 @@ export default function HalamanPengaduanPemohon() {
     )
     .all(user.id) as { id: number; nomor: string; nama_kelompok: string }[];
 
-  const pengaduan = db
+  const pengaduan = await db
     .prepare(
       `SELECT f.id, f.nomor, f.kategori, f.deskripsi, f.urgensi, f.status, f.sumber,
               f.petugas, f.created_at, r.nama AS nama_ruangan

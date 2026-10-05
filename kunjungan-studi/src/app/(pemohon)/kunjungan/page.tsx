@@ -13,15 +13,15 @@ import type { VisitApplication } from "@/lib/types";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Kunjungan Studi" };
 
-export default function DaftarKunjungan({
+export default async function DaftarKunjungan({
   searchParams,
 }: {
   searchParams: { status?: string };
 }) {
-  const user = wajibPemohon();
+  const user = await wajibPemohon();
   const filter = searchParams.status ?? "SEMUA";
 
-  const semua = db
+  const semua = await db
     .prepare(`SELECT * FROM visit_applications WHERE user_id = ? ORDER BY created_at DESC`)
     .all(user.id) as VisitApplication[];
 

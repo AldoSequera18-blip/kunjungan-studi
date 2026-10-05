@@ -42,20 +42,20 @@ const STATUS_FILTER = [
 ];
 
 /** Modul Pengaduan — Bab 36 dokumen analisis. */
-export default function DaftarPengaduanAdmin({
+export default async function DaftarPengaduanAdmin({
   searchParams,
 }: {
   searchParams: { status?: string; ruangan?: string; kategori?: string };
 }) {
-  wajibAdmin();
+  await wajibAdmin();
 
   const status = searchParams.status ?? "SEMUA";
   const ruanganId = searchParams.ruangan ? Number(searchParams.ruangan) : 0;
   const kategori = searchParams.kategori ?? "";
 
-  const ruangan = db.prepare(`SELECT * FROM rooms ORDER BY kode`).all() as Room[];
+  const ruangan = await db.prepare(`SELECT * FROM rooms ORDER BY kode`).all() as Room[];
 
-  const semua = db
+  const semua = await db
     .prepare(
       `SELECT f.id, f.room_id, f.nomor, f.kategori, f.deskripsi, f.urgensi, f.status, f.sumber,
               f.pelapor_nama, f.anonim, f.petugas, f.created_at,
