@@ -4,9 +4,9 @@
   "private": true,
   "description": "Sistem Informasi Manajemen Kunjungan Studi Berkelompok - Balai Layanan Perpustakaan Pemda DIY",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --hostname 0.0.0.0",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --hostname 0.0.0.0",
     "lint": "next lint",
     "db:check": "node --env-file=.env.local scripts/check-supabase-connection.mjs"
   },

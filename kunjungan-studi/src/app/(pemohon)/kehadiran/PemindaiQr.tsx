@@ -117,10 +117,6 @@ export default function PemindaiQr() {
         )}
       </div>
       <div className="flex items-center justify-center gap-3 text-center text-sm text-slate-500 sm:text-base">
-        <svg className="h-8 w-8 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-          <circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.8" />
-        </svg>
         <span>Pemindaian hanya menggunakan kamera perangkat.</span>
       </div>
     </section>
