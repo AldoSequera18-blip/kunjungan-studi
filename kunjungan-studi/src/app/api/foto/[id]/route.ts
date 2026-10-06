@@ -14,11 +14,12 @@ const TIPE: Record<string, string> = {
 };
 
 /** Foto profil — hanya pemilik akun dan admin yang dapat melihat. */
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id: idParam } = await params;
   const u = await penggunaSaatIni();
   if (!u) return new NextResponse("Tidak diizinkan", { status: 401 });
 
-  const id = Number(params.id);
+  const id = Number(idParam);
   if (u.role !== "ADMIN" && u.id !== id) {
     return new NextResponse("Tidak diizinkan", { status: 403 });
   }

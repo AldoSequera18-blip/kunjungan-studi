@@ -44,11 +44,12 @@ const FILTER = [
 export default async function DaftarPermohonanAdmin({
   searchParams,
 }: {
-  searchParams: { status?: string; q?: string };
+  searchParams: Promise<{ status?: string; q?: string }>;
 }) {
+  const query = await searchParams;
   await wajibAdmin();
-  const status = searchParams.status ?? "SEMUA";
-  const q = (searchParams.q ?? "").trim();
+  const status = query.status ?? "SEMUA";
+  const q = (query.q ?? "").trim();
 
   const semua = await db
     .prepare(

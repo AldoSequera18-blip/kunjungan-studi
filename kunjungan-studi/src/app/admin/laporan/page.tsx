@@ -10,13 +10,14 @@ export const metadata = { title: "Laporan & Rekap" };
 export default async function HalamanLaporan({
   searchParams,
 }: {
-  searchParams: { dari?: string; sampai?: string };
+  searchParams: Promise<{ dari?: string; sampai?: string }>;
 }) {
+  const query = await searchParams;
   await wajibAdmin();
 
   const tahunIni = new Date().getFullYear();
-  const dari = searchParams.dari || `${tahunIni}-01-01`;
-  const sampai = searchParams.sampai || `${tahunIni}-12-31`;
+  const dari = query.dari || `${tahunIni}-01-01`;
+  const sampai = query.sampai || `${tahunIni}-12-31`;
 
   const satu = async <T,>(sql: string, ...p: unknown[]) => await db.prepare(sql).get(...p) as T;
   const banyak = async <T,>(sql: string, ...p: unknown[]) => await db.prepare(sql).all(...p) as T[];

@@ -10,11 +10,12 @@ import type { RoomQrCode } from "@/lib/types";
  */
 export async function GET(
   request: Request,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
+  const { token } = await params;
   const qr = await db
     .prepare(`SELECT * FROM room_qr_codes WHERE token = ? AND aktif = 1`)
-    .get(params.token) as RoomQrCode | undefined;
+    .get(token) as RoomQrCode | undefined;
 
   if (!qr) {
     return new NextResponse("QR Code tidak ditemukan", { status: 404 });

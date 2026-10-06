@@ -36,14 +36,15 @@ const WARNA_AKSI: Record<string, string> = {
 export default async function HalamanAuditLog({
   searchParams,
 }: {
-  searchParams: { aksi?: string; q?: string; hal?: string };
+  searchParams: Promise<{ aksi?: string; q?: string; hal?: string }>;
 }) {
+  const query = await searchParams;
   await wajibAdmin();
 
-  const halaman = Math.max(1, Number(searchParams.hal ?? 1));
+  const halaman = Math.max(1, Number(query.hal ?? 1));
   const perHalaman = 50;
-  const aksiFilter = searchParams.aksi ?? "";
-  const q = (searchParams.q ?? "").trim().toLowerCase();
+  const aksiFilter = query.aksi ?? "";
+  const q = (query.q ?? "").trim().toLowerCase();
 
   const semua = await db
     .prepare(
@@ -95,7 +96,7 @@ export default async function HalamanAuditLog({
             id="q"
             name="q"
             className="input"
-            defaultValue={searchParams.q ?? ""}
+            defaultValue={query.q ?? ""}
             placeholder="Pelaku, entitas, atau detail"
           />
         </div>

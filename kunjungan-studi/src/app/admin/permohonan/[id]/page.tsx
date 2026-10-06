@@ -16,9 +16,10 @@ import PanelVerifikasi from "./PanelVerifikasi";
 
 export const dynamic = "force-dynamic";
 
-export default async function DetailPermohonanAdmin({ params }: { params: { id: string } }) {
+export default async function DetailPermohonanAdmin({ params }: { params: Promise<{ id: string }> }) {
   await wajibAdmin();
-  const id = Number(params.id);
+  const { id: idParam } = await params;
+  const id = Number(idParam);
 
   const app = await db
     .prepare(

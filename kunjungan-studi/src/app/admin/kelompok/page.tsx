@@ -29,10 +29,11 @@ interface BarisKelompok {
 export default async function HalamanKelompokAdmin({
   searchParams,
 }: {
-  searchParams: { q?: string };
+  searchParams: Promise<{ q?: string }>;
 }) {
+  const query = await searchParams;
   await wajibAdmin();
-  const q = (searchParams.q ?? "").trim().toLowerCase();
+  const q = (query.q ?? "").trim().toLowerCase();
 
   const semua = await db
     .prepare(
@@ -71,7 +72,7 @@ export default async function HalamanKelompokAdmin({
         <form method="get" className="flex gap-2">
           <input
             name="q"
-            defaultValue={searchParams.q ?? ""}
+            defaultValue={query.q ?? ""}
             className="input w-64"
             placeholder="Cari kelompok / instansi / pemohon"
           />

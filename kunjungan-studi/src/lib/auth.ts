@@ -28,7 +28,8 @@ export async function buatSesi(userId: number) {
     kadaluarsa.toISOString()
   );
 
-  cookies().set(COOKIE, id, {
+  const cookieStore = await cookies();
+  cookieStore.set(COOKIE, id, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -38,14 +39,16 @@ export async function buatSesi(userId: number) {
 }
 
 export async function hapusSesi() {
-  const id = cookies().get(COOKIE)?.value;
+  const cookieStore = await cookies();
+  const id = cookieStore.get(COOKIE)?.value;
   if (id) await db.prepare(`DELETE FROM sessions WHERE id = ?`).run(id);
-  cookies().delete(COOKIE);
+  cookieStore.delete(COOKIE);
 }
 
 /** Mengambil user yang sedang login, atau null. */
 export async function penggunaSaatIni(): Promise<SessionUser | null> {
-  const id = cookies().get(COOKIE)?.value;
+  const cookieStore = await cookies();
+  const id = cookieStore.get(COOKIE)?.value;
   if (!id) return null;
 
   const sesi = await db

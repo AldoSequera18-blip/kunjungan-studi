@@ -16,7 +16,8 @@ const TIPE: Record<string, string> = {
 };
 
 /** Unduh surat kunjungan — hanya pemilik permohonan dan admin (Aturan Bisnis no. 2). */
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const u = await penggunaSaatIni();
   if (!u) return new NextResponse("Tidak diizinkan", { status: 401 });
 
@@ -26,7 +27,7 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
          JOIN visit_applications a ON a.id = d.application_id
         WHERE d.id = ? AND d.jenis = 'SURAT_PERMOHONAN'`
     )
-    .get(Number(params.id)) as
+    .get(Number(id)) as
     | { nama_file: string; berkas: string | null; user_id: number }
     | undefined;
   if (!dok || !dok.berkas) return new NextResponse("Tidak ditemukan", { status: 404 });

@@ -16,10 +16,11 @@ export const metadata = { title: "Kunjungan Studi" };
 export default async function DaftarKunjungan({
   searchParams,
 }: {
-  searchParams: { status?: string };
+  searchParams: Promise<{ status?: string }>;
 }) {
+  const query = await searchParams;
   const user = await wajibPemohon();
-  const filter = searchParams.status ?? "SEMUA";
+  const filter = query.status ?? "SEMUA";
 
   const semua = await db
     .prepare(`SELECT * FROM visit_applications WHERE user_id = ? ORDER BY created_at DESC`)

@@ -19,9 +19,10 @@ import PanelSurat from "./PanelSurat";
 
 export const dynamic = "force-dynamic";
 
-export default async function DetailKunjungan({ params }: { params: { id: string } }) {
+export default async function DetailKunjungan({ params }: { params: Promise<{ id: string }> }) {
+  const { id: idParam } = await params;
   const user = await wajibPemohon();
-  const id = Number(params.id);
+  const id = Number(idParam);
 
   // Aturan Bisnis no. 2 — pemohon hanya melihat kunjungan miliknya sendiri
   const app = await db

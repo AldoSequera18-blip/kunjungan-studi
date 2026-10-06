@@ -23,12 +23,14 @@ export default async function HalamanDaftarHadir({
   params,
   searchParams,
 }: {
-  params: { token: string };
-  searchParams: { jadwal?: string; kode?: string };
+  params: Promise<{ token: string }>;
+  searchParams: Promise<{ jadwal?: string; kode?: string }>;
 }) {
+  const { token } = await params;
+  const query = await searchParams;
   const qr = await db
     .prepare(`SELECT * FROM room_qr_codes WHERE token = ? AND tipe = 'ABSENSI'`)
-    .get(params.token) as RoomQrCode | undefined;
+    .get(token) as RoomQrCode | undefined;
 
   const room = qr
     ? (await db.prepare(`SELECT * FROM rooms WHERE id = ?`).get(qr.room_id) as Room | undefined)
@@ -66,10 +68,10 @@ export default async function HalamanDaftarHadir({
 
   // Pemilihan jadwal: lewat parameter ?jadwal= atau pencarian nomor kunjungan ?kode=
   let jadwalTerpilih: JadwalRuangan | undefined;
-  if (searchParams.jadwal) {
-    jadwalTerpilih = jadwalHariIni.find((j) => String(j.id) === searchParams.jadwal);
-  } else if (searchParams.kode) {
-    const kode = searchParams.kode.trim().toUpperCase();
+  if (query.jadwal) {
+    jadwalTerpilih = jadwalHariIni.find((j) => String(j.id) === query.jadwal);
+  } else if (query.kode) {
+    const kode = query.kode.trim().toUpperCase();
     jadwalTerpilih = await db
       .prepare(
         `SELECT s.id, s.tanggal, s.waktu_mulai, s.waktu_selesai, s.status,
@@ -132,7 +134,7 @@ export default async function HalamanDaftarHadir({
                 {jadwalHariIni.map((j) => (
                   <li key={j.id}>
                     <Link
-                      href={`/hadir/${params.token}?jadwal=${j.id}`}
+                      href={`/hadir/${token}?jadwal=${j.id}`}
                       className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 px-4 py-3 transition hover:border-brand-400 hover:bg-brand-50"
                     >
                       <span>
@@ -165,9 +167,9 @@ export default async function HalamanDaftarHadir({
                 />
                 <button type="submit" className="btn-primary shrink-0">Cari</button>
               </div>
-              {searchParams.kode && (
+              {query.kode && (
                 <p className="alert-error mt-3">
-                  Nomor kunjungan <strong>{searchParams.kode}</strong> tidak ditemukan pada
+                  Nomor kunjungan <strong>{query.kode}</strong> tidak ditemukan pada
                   ruangan ini.
                 </p>
               )}
@@ -184,7 +186,7 @@ export default async function HalamanDaftarHadir({
                   </h2>
                   <p className="text-sm text-slate-600">{jadwalTerpilih.asal_instansi}</p>
                 </div>
-                <Link href={`/hadir/${params.token}`} className="btn-secondary btn-sm">
+                <Link href={`/hadir/${token}`} className="btn-secondary btn-sm">
                   Ganti
                 </Link>
               </div>
@@ -197,7 +199,7 @@ export default async function HalamanDaftarHadir({
             </div>
 
             <PanelDaftarHadir
-              token={params.token}
+              token={token}
               scheduleId={jadwalTerpilih.id}
               peserta={peserta}
               kehadiran={kehadiran.map((k) => ({

@@ -18,9 +18,10 @@ import KartuQr from "./KartuQr";
 
 export const dynamic = "force-dynamic";
 
-export default async function DetailRuanganAdmin({ params }: { params: { id: string } }) {
+export default async function DetailRuanganAdmin({ params }: { params: Promise<{ id: string }> }) {
   await wajibAdmin();
-  const id = Number(params.id);
+  const { id: idParam } = await params;
+  const id = Number(idParam);
 
   const room = await db.prepare(`SELECT * FROM rooms WHERE id = ?`).get(id) as Room | undefined;
   if (!room) notFound();
@@ -62,7 +63,7 @@ export default async function DetailRuanganAdmin({ params }: { params: { id: str
     created_at: string;
   }[];
 
-  const reqHeaders = headers();
+  const reqHeaders = await headers();
   const currentUrl = new URL(`http://${reqHeaders.get("host") || "localhost:3000"}`);
   const forwardedProto = reqHeaders.get("x-forwarded-proto")?.split(",")[0].trim();
   const forwardedHost = reqHeaders.get("x-forwarded-host")?.split(",")[0].trim();

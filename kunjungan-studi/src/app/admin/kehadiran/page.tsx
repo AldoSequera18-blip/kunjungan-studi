@@ -27,13 +27,14 @@ interface BarisHadir {
 export default async function HalamanKehadiranAdmin({
   searchParams,
 }: {
-  searchParams: { tanggal?: string; ruangan?: string; q?: string };
+  searchParams: Promise<{ tanggal?: string; ruangan?: string; q?: string }>;
 }) {
+  const query = await searchParams;
   await wajibAdmin();
 
-  const tanggal = searchParams.tanggal || hariIniISO();
-  const ruanganId = searchParams.ruangan ? Number(searchParams.ruangan) : 0;
-  const q = (searchParams.q ?? "").trim().toLowerCase();
+  const tanggal = query.tanggal || hariIniISO();
+  const ruanganId = query.ruangan ? Number(query.ruangan) : 0;
+  const q = (query.q ?? "").trim().toLowerCase();
 
   const ruangan = await db.prepare(`SELECT * FROM rooms ORDER BY kode`).all() as Room[];
 
@@ -95,7 +96,7 @@ export default async function HalamanKehadiranAdmin({
             id="q"
             name="q"
             className="input"
-            defaultValue={searchParams.q ?? ""}
+            defaultValue={query.q ?? ""}
             placeholder="Nama peserta / kelompok / nomor kunjungan"
           />
         </div>

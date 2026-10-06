@@ -5,7 +5,7 @@ import SubmitButton from "@/components/SubmitButton";
 import { aksiLogin } from "../actions";
 
 export default function FormLogin() {
-  const [state, formAction] = useFormState(aksiLogin, undefined);
+  const [state, formAction] = useFormState(aksiLogin, {});
 
   return (
     <form action={formAction} className="space-y-4">

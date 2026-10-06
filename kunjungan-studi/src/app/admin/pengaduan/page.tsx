@@ -45,13 +45,14 @@ const STATUS_FILTER = [
 export default async function DaftarPengaduanAdmin({
   searchParams,
 }: {
-  searchParams: { status?: string; ruangan?: string; kategori?: string };
+  searchParams: Promise<{ status?: string; ruangan?: string; kategori?: string }>;
 }) {
+  const query = await searchParams;
   await wajibAdmin();
 
-  const status = searchParams.status ?? "SEMUA";
-  const ruanganId = searchParams.ruangan ? Number(searchParams.ruangan) : 0;
-  const kategori = searchParams.kategori ?? "";
+  const status = query.status ?? "SEMUA";
+  const ruanganId = query.ruangan ? Number(query.ruangan) : 0;
+  const kategori = query.kategori ?? "";
 
   const ruangan = await db.prepare(`SELECT * FROM rooms ORDER BY kode`).all() as Room[];
 

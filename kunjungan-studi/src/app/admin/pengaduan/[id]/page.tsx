@@ -36,9 +36,10 @@ interface Detail {
   nama_kelompok: string | null;
 }
 
-export default async function DetailPengaduanAdmin({ params }: { params: { id: string } }) {
+export default async function DetailPengaduanAdmin({ params }: { params: Promise<{ id: string }> }) {
   await wajibAdmin();
-  const id = Number(params.id);
+  const { id: idParam } = await params;
+  const id = Number(idParam);
 
   const p = await db
     .prepare(
