@@ -451,6 +451,47 @@ export async function aksiHapusPeserta(_prev: FormState, fd: FormData): Promise<
   return { success: `Peserta ${baris.nama} dihapus.` };
 }
 
+export async function aksiUbahPeserta(_prev: FormState, fd: FormData): Promise<FormState> {
+  const user = await wajibPemohon();
+  const visitorId = angka(fd, "visitor_id");
+  const baris = await db
+    .prepare(
+      `SELECT v.id, v.application_id, v.nama, a.status, a.nomor
+         FROM visitors v JOIN visit_applications a ON a.id = v.application_id
+        WHERE v.id = ? AND a.user_id = ?`
+    )
+    .get(visitorId, user.id) as
+    | { id: number; application_id: number; nama: string; status: string; nomor: string }
+    | undefined;
+
+  if (!baris) return { error: "Data peserta tidak ditemukan." };
+  if (["SELESAI", "DIBATALKAN", "DITOLAK", "BERLANGSUNG"].includes(baris.status)) {
+    return { error: "Data peserta tidak dapat diubah pada status permohonan ini." };
+  }
+
+  const nama = teks(fd, "nama");
+  const jenis = teks(fd, "jenis");
+  if (!nama) return { error: "Nama peserta wajib diisi." };
+  if (jenis !== "PESERTA" && jenis !== "PENDAMPING") return { error: "Jenis peserta tidak valid." };
+
+  await db.prepare(
+    `UPDATE visitors SET nama = ?, identitas = ?, jenis = ?, keterangan = ? WHERE id = ?`
+  ).run(nama, teks(fd, "identitas") || null, jenis, teks(fd, "keterangan") || null, visitorId);
+
+  await catatAudit({
+    userId: user.id,
+    aktor: user.nama,
+    aksi: "UBAH_PESERTA",
+    entitas: "VISITOR",
+    entitasId: visitorId,
+    detail: `${baris.nomor} — ${baris.nama} menjadi ${nama}`,
+  });
+
+  revalidatePath(`/kunjungan/${baris.application_id}`);
+  revalidatePath("/peserta");
+  return { success: `Data peserta ${nama} diperbarui.` };
+}
+
 /* ================================================================= */
 /* Profil                                                            */
 /* ================================================================= */

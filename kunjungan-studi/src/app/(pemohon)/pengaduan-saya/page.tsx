@@ -9,6 +9,7 @@ import {
 } from "@/lib/utils";
 import type { Room } from "@/lib/types";
 import FormPengaduanMenu from "./FormPengaduanMenu";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Pengaduan Fasilitas" };
@@ -27,8 +28,10 @@ interface BarisPengaduan {
 }
 
 /** Menu Pengaduan Fasilitas pemohon — Bab 28 dokumen analisis. */
-export default async function HalamanPengaduanPemohon() {
+export default async function HalamanPengaduanPemohon({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const query = await searchParams;
   const user = await wajibPemohon();
+  const q = (query.q ?? "").trim().toLocaleLowerCase("id-ID");
 
   const ruangan = await db
     .prepare(`SELECT * FROM rooms WHERE status != 'TIDAK_AKTIF' ORDER BY kode`)
@@ -53,6 +56,7 @@ export default async function HalamanPengaduanPemohon() {
         ORDER BY f.created_at DESC`
     )
     .all(user.nama, user.id) as BarisPengaduan[];
+  const hasilPengaduan = q ? pengaduan.filter((p) => [p.nomor, p.kategori, p.deskripsi, p.nama_ruangan, p.status].some((v) => v.toLocaleLowerCase("id-ID").includes(q))) : pengaduan;
 
   return (
     <div className="space-y-6">
@@ -73,15 +77,21 @@ export default async function HalamanPengaduanPemohon() {
         </div>
 
         <div className="lg:col-span-3">
-          <h2 className="section-title mb-3">Riwayat Pengaduan ({pengaduan.length})</h2>
+          <h2 className="section-title mb-3">Riwayat Pengaduan ({hasilPengaduan.length})</h2>
 
-          {pengaduan.length === 0 ? (
+          <form method="get" className="mb-4 flex flex-wrap gap-2">
+            <input name="q" className="input flex-1" defaultValue={query.q ?? ""} placeholder="Cari nomor, ruangan, kategori, masalah" />
+            <button type="submit" className="btn-secondary">Cari</button>
+            {q && <Link href="/pengaduan-saya" className="btn-secondary">Reset</Link>}
+          </form>
+
+          {hasilPengaduan.length === 0 ? (
             <p className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-sm text-slate-500">
               Belum ada pengaduan yang Anda sampaikan.
             </p>
           ) : (
             <div className="space-y-4">
-              {pengaduan.map((p) => (
+              {hasilPengaduan.map((p) => (
                 <article key={p.id} className="card-pad">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>

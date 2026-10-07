@@ -2,16 +2,20 @@ import { db } from "@/lib/db";
 import { wajibPemohon } from "@/lib/auth";
 import { LABEL_STATUS_RUANGAN, warnaStatusRuangan } from "@/lib/utils";
 import type { Room } from "@/lib/types";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Ruangan & Fasilitas" };
 
-export default async function RuanganFasilitasPemohon() {
+export default async function RuanganFasilitasPemohon({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const query = await searchParams;
   await wajibPemohon();
+  const q = (query.q ?? "").trim().toLocaleLowerCase("id-ID");
 
-  const ruangan = await db
+  const semuaRuangan = await db
     .prepare(`SELECT * FROM rooms WHERE status != 'TIDAK_AKTIF' ORDER BY kode`)
     .all() as Room[];
+  const ruangan = q ? semuaRuangan.filter((r) => [r.kode, r.nama, r.lokasi ?? "", r.fasilitas ?? ""].some((v) => v.toLocaleLowerCase("id-ID").includes(q))) : semuaRuangan;
 
   return (
     <div className="space-y-6">
@@ -23,7 +27,13 @@ export default async function RuanganFasilitasPemohon() {
         </p>
       </header>
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <form method="get" className="flex flex-wrap gap-2">
+        <input name="q" className="input max-w-md" defaultValue={query.q ?? ""} placeholder="Cari nama, kode, lokasi, fasilitas" />
+        <button type="submit" className="btn-secondary">Cari ruangan</button>
+        {q && <Link href="/fasilitas" className="btn-secondary">Reset</Link>}
+      </form>
+
+      {ruangan.length === 0 ? <p className="hint">Tidak ada ruangan yang cocok dengan pencarian.</p> : <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
         {ruangan.map((r) => (
           <article key={r.id} className="card-pad">
             <div className="flex items-start justify-between gap-3">
@@ -62,7 +72,7 @@ export default async function RuanganFasilitasPemohon() {
             )}
           </article>
         ))}
-      </div>
+      </div>}
 
       <div className="alert-warning">
         <p className="font-semibold">Menemukan kendala fasilitas?</p>

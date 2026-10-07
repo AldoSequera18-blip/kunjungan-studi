@@ -13,8 +13,10 @@ interface BarisRuangan extends Room {
   pengaduan_aktif: number;
 }
 
-export default async function HalamanRuanganAdmin() {
+export default async function HalamanRuanganAdmin({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const query = await searchParams;
   await wajibAdmin();
+  const q = (query.q ?? "").trim().toLocaleLowerCase("id-ID");
 
   const ruangan = await db
     .prepare(
@@ -26,6 +28,7 @@ export default async function HalamanRuanganAdmin() {
          FROM rooms r ORDER BY r.kode`
     )
     .all() as BarisRuangan[];
+  const hasilRuangan = q ? ruangan.filter((r) => [r.kode, r.nama, r.lokasi ?? "", r.fasilitas ?? "", r.status].some((v) => v.toLocaleLowerCase("id-ID").includes(q))) : ruangan;
 
   return (
     <div className="space-y-6">
@@ -36,9 +39,15 @@ export default async function HalamanRuanganAdmin() {
         </p>
       </header>
 
+      <form method="get" className="flex flex-wrap gap-2">
+        <input name="q" className="input max-w-md" defaultValue={query.q ?? ""} placeholder="Cari kode, nama, lokasi, fasilitas" />
+        <button type="submit" className="btn-secondary">Cari</button>
+        {q && <Link href="/admin/ruangan" className="btn-secondary">Reset</Link>}
+      </form>
+
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
-          {ruangan.map((r) => (
+          {hasilRuangan.map((r) => (
             <article key={r.id} className="card-pad">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -80,6 +89,7 @@ export default async function HalamanRuanganAdmin() {
               </div>
             </article>
           ))}
+          {hasilRuangan.length === 0 && <p className="hint">Tidak ada ruangan yang cocok.</p>}
         </div>
 
         <aside>

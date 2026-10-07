@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import Link from "next/link";
 import { wajibPemohon } from "@/lib/auth";
 import KalenderJadwal, { type EventKalender } from "@/components/KalenderJadwal";
 import {
@@ -32,8 +33,10 @@ interface BarisJadwal {
   fasilitas: string | null;
 }
 
-export default async function HalamanJadwalPemohon() {
+export default async function HalamanJadwalPemohon({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const query = await searchParams;
   const user = await wajibPemohon();
+  const q = (query.q ?? "").trim().toLocaleLowerCase("id-ID");
 
   const jadwal = await db
     .prepare(
@@ -113,6 +116,9 @@ export default async function HalamanJadwalPemohon() {
       sesi: [{ id: -k.id, waktu, ruangan: "Tidak menggunakan ruangan", statusLabel: label, statusClass: warna }],
     };
   }));
+  const hasilEvents = q ? events.filter((event) =>
+    [event.judul, event.nomor ?? "", ...event.sesi.map((s) => s.ruangan)].some((value) => value.toLocaleLowerCase("id-ID").includes(q))
+  ) : events;
 
   return (
     <div className="space-y-6">
@@ -123,7 +129,13 @@ export default async function HalamanJadwalPemohon() {
         </p>
       </header>
 
-      <KalenderJadwal events={events} hariIni={hariIniISO()} />
+      <form method="get" className="flex flex-wrap gap-2">
+        <input name="q" className="input max-w-md" defaultValue={query.q ?? ""} placeholder="Cari kelompok, nomor, atau ruangan" />
+        <button type="submit" className="btn-secondary">Cari jadwal</button>
+        {q && <Link href="/jadwal" className="btn-secondary">Reset</Link>}
+      </form>
+
+      <KalenderJadwal events={hasilEvents} hariIni={hariIniISO()} />
     </div>
   );
 }

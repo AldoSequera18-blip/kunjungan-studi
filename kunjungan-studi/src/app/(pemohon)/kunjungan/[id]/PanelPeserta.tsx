@@ -4,6 +4,7 @@ import { useFormState } from "react-dom";
 import SubmitButton from "@/components/SubmitButton";
 import type { Visitor } from "@/lib/types";
 import { aksiHapusPeserta, aksiTambahPeserta } from "../../actions";
+import EditPeserta from "./EditPeserta";
 
 export default function PanelPeserta({
   applicationId,
@@ -77,7 +78,7 @@ export default function PanelPeserta({
                   <th>Nama</th>
                   <th>Identitas</th>
                   <th>Jenis</th>
-                  {bolehUbah && <th></th>}
+                  {bolehUbah && <th>Kelola</th>}
                 </tr>
               </thead>
               <tbody>
@@ -92,7 +93,8 @@ export default function PanelPeserta({
                       </span>
                     </td>
                     {bolehUbah && (
-                      <td className="text-right">
+                      <td>
+                        <EditPeserta peserta={p} />
                         <form action={aksiHapus}>
                           <input type="hidden" name="visitor_id" value={p.id} />
                           <SubmitButton

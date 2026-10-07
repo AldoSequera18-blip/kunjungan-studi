@@ -66,7 +66,7 @@ export default async function DetailKunjungan({ params }: { params: Promise<{ id
     .all() as Room[];
 
   const bolehUbahData = ["DRAFT", "PERLU_PERBAIKAN"].includes(app.status);
-  const bolehUbahPeserta = !["SELESAI", "DIBATALKAN", "DITOLAK"].includes(app.status);
+  const bolehUbahPeserta = !["SELESAI", "DIBATALKAN", "DITOLAK", "BERLANGSUNG"].includes(app.status);
   const bisaDibatalkan = !["SELESAI", "DIBATALKAN", "BERLANGSUNG"].includes(app.status);
 
   return (

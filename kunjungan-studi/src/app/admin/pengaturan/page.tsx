@@ -10,8 +10,10 @@ export const metadata = { title: "Pengaturan" };
  * Berisi informasi sistem serta daftar hal yang menurut Bab 46 masih
  * memerlukan konfirmasi resmi dari Balai sebelum dijadikan aturan wajib.
  */
-export default async function HalamanPengaturan() {
+export default async function HalamanPengaturan({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const query = await searchParams;
   await wajibAdmin();
+  const q = (query.q ?? "").trim().toLocaleLowerCase("id-ID");
 
   const hitung = async (sql: string) => (await db.prepare(sql).get() as { n: number }).n;
 
@@ -37,6 +39,7 @@ export default async function HalamanPengaturan() {
     instansi: string | null;
     created_at: string;
   }[];
+  const hasilPengguna = q ? pengguna.filter((u) => [u.nama, u.email, u.instansi ?? "", u.role].some((v) => v.toLocaleLowerCase("id-ID").includes(q))) : pengguna;
 
   const perluKonfirmasi = [
     "Format final formulir pendaftaran dan daftar field wajib.",
@@ -79,6 +82,10 @@ export default async function HalamanPengaturan() {
         <div className="border-b border-slate-100 px-5 py-4">
           <h2 className="section-title">Hak Akses Pengguna</h2>
         </div>
+        <form method="get" className="flex flex-wrap gap-2 px-5 py-4">
+          <input name="q" className="input max-w-md" defaultValue={query.q ?? ""} placeholder="Cari nama, email, instansi, peran" />
+          <button type="submit" className="btn-secondary">Cari pengguna</button>
+        </form>
         <div className="overflow-x-auto">
           <table className="table">
             <thead>
@@ -91,7 +98,7 @@ export default async function HalamanPengaturan() {
               </tr>
             </thead>
             <tbody>
-              {pengguna.map((u) => (
+              {hasilPengguna.map((u) => (
                 <tr key={u.id}>
                   <td className="font-medium text-slate-900">{u.nama}</td>
                   <td>{u.email}</td>
@@ -106,6 +113,7 @@ export default async function HalamanPengaturan() {
                   </td>
                 </tr>
               ))}
+              {hasilPengguna.length === 0 && <tr><td colSpan={5} className="py-8 text-center text-sm text-slate-500">Tidak ada pengguna yang cocok.</td></tr>}
             </tbody>
           </table>
         </div>

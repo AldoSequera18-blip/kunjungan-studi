@@ -16,17 +16,22 @@ export const metadata = { title: "Kunjungan Studi" };
 export default async function DaftarKunjungan({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; q?: string }>;
 }) {
   const query = await searchParams;
   const user = await wajibPemohon();
   const filter = query.status ?? "SEMUA";
+  const q = (query.q ?? "").trim().toLocaleLowerCase("id-ID");
 
   const semua = await db
     .prepare(`SELECT * FROM visit_applications WHERE user_id = ? ORDER BY created_at DESC`)
     .all(user.id) as VisitApplication[];
 
-  const daftar = filter === "SEMUA" ? semua : semua.filter((p) => p.status === filter);
+  const daftar = semua.filter((p) => {
+    const cocokStatus = filter === "SEMUA" || p.status === filter;
+    const cocokTeks = !q || [p.nomor, p.nama_kelompok, p.asal_instansi].some((teks) => teks.toLocaleLowerCase("id-ID").includes(q));
+    return cocokStatus && cocokTeks;
+  });
 
   const tabFilter = [
     { key: "SEMUA", label: "Semua" },
@@ -53,7 +58,7 @@ export default async function DaftarKunjungan({
         {tabFilter.map((t) => (
           <Link
             key={t.key}
-            href={t.key === "SEMUA" ? "/kunjungan" : `/kunjungan?status=${t.key}`}
+            href={`${t.key === "SEMUA" ? "/kunjungan" : `/kunjungan?status=${t.key}`}${q ? `${t.key === "SEMUA" ? "?" : "&"}q=${encodeURIComponent(q)}` : ""}`}
             className={`rounded-lg px-3 py-1.5 text-sm font-medium transition ${
               filter === t.key
                 ? "bg-brand-600 text-white"
@@ -69,6 +74,13 @@ export default async function DaftarKunjungan({
           </Link>
         ))}
       </nav>
+
+      <form method="get" className="flex flex-wrap gap-2">
+        {filter !== "SEMUA" && <input type="hidden" name="status" value={filter} />}
+        <input name="q" className="input max-w-md" defaultValue={query.q ?? ""} placeholder="Cari nomor, kelompok, atau instansi" />
+        <button type="submit" className="btn-secondary">Cari</button>
+        {q && <Link href={filter === "SEMUA" ? "/kunjungan" : `/kunjungan?status=${filter}`} className="btn-secondary">Reset</Link>}
+      </form>
 
       {daftar.length === 0 ? (
         <EmptyState

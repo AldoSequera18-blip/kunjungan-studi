@@ -27,8 +27,10 @@ interface BarisPeserta {
 }
 
 /** Menu Data Peserta — Bab 26 dokumen analisis. */
-export default async function HalamanDataPeserta() {
+export default async function HalamanDataPeserta({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const query = await searchParams;
   const user = await wajibPemohon();
+  const q = (query.q ?? "").trim().toLocaleLowerCase("id-ID");
 
   const kelompok = await db
     .prepare(
@@ -48,6 +50,10 @@ export default async function HalamanDataPeserta() {
         WHERE a.user_id = ? ORDER BY v.jenis DESC, v.nama`
     )
     .all(user.id) as BarisPeserta[];
+  const daftarKelompok = q ? kelompok.filter((k) =>
+    [k.nomor, k.nama_kelompok, k.asal_instansi].some((v) => v.toLocaleLowerCase("id-ID").includes(q)) ||
+    semuaPeserta.some((p) => p.application_id === k.id && [p.nama, p.identitas ?? ""].some((v) => v.toLocaleLowerCase("id-ID").includes(q)))
+  ) : kelompok;
 
   return (
     <div className="space-y-6">
@@ -59,7 +65,13 @@ export default async function HalamanDataPeserta() {
         </p>
       </header>
 
-      {kelompok.length === 0 ? (
+      <form method="get" className="flex flex-wrap gap-2">
+        <input name="q" className="input max-w-md" defaultValue={query.q ?? ""} placeholder="Cari peserta, kelompok, atau instansi" />
+        <button type="submit" className="btn-secondary">Cari</button>
+        {q && <Link href="/peserta" className="btn-secondary">Reset</Link>}
+      </form>
+
+      {daftarKelompok.length === 0 ? (
         <EmptyState
           judul="Belum ada kelompok kunjungan"
           pesan="Ajukan permohonan kunjungan terlebih dahulu untuk mengisi data peserta."
@@ -67,7 +79,7 @@ export default async function HalamanDataPeserta() {
         />
       ) : (
         <div className="space-y-5">
-          {kelompok.map((k) => {
+          {daftarKelompok.map((k) => {
             const anggota = semuaPeserta.filter((p) => p.application_id === k.id);
             const lengkap = anggota.length >= k.jumlah_peserta;
 

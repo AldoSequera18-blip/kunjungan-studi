@@ -45,7 +45,7 @@ const STATUS_FILTER = [
 export default async function DaftarPengaduanAdmin({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; ruangan?: string; kategori?: string }>;
+  searchParams: Promise<{ status?: string; ruangan?: string; kategori?: string; q?: string }>;
 }) {
   const query = await searchParams;
   await wajibAdmin();
@@ -53,6 +53,7 @@ export default async function DaftarPengaduanAdmin({
   const status = query.status ?? "SEMUA";
   const ruanganId = query.ruangan ? Number(query.ruangan) : 0;
   const kategori = query.kategori ?? "";
+  const q = (query.q ?? "").trim().toLocaleLowerCase("id-ID");
 
   const ruangan = await db.prepare(`SELECT * FROM rooms ORDER BY kode`).all() as Room[];
 
@@ -72,6 +73,7 @@ export default async function DaftarPengaduanAdmin({
   if (status !== "SEMUA") daftar = daftar.filter((p) => p.status === status);
   if (ruanganId) daftar = daftar.filter((p) => p.room_id === ruanganId);
   if (kategori) daftar = daftar.filter((p) => p.kategori === kategori);
+  if (q) daftar = daftar.filter((p) => [p.nomor, p.deskripsi, p.pelapor_nama ?? "", p.nama_ruangan, p.kode_ruangan].some((v) => v.toLocaleLowerCase("id-ID").includes(q)));
 
   return (
     <div className="space-y-6">
@@ -104,6 +106,10 @@ export default async function DaftarPengaduanAdmin({
 
       <form method="get" className="card-pad flex flex-wrap items-end gap-3">
         {status !== "SEMUA" && <input type="hidden" name="status" value={status} />}
+        <div className="min-w-56 flex-1">
+          <label className="label" htmlFor="q">Cari</label>
+          <input id="q" name="q" className="input" defaultValue={query.q ?? ""} placeholder="Nomor, masalah, pelapor, ruangan" />
+        </div>
         <div>
           <label className="label" htmlFor="ruangan">Ruangan</label>
           <select id="ruangan" name="ruangan" className="input" defaultValue={String(ruanganId)}>

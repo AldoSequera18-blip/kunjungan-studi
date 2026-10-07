@@ -37,8 +37,10 @@ interface BarisJadwal {
 }
 
 /** Modul Jadwal — Bab 33 dokumen analisis. */
-export default async function HalamanJadwalAdmin() {
+export default async function HalamanJadwalAdmin({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const query = await searchParams;
   await wajibAdmin();
+  const q = (query.q ?? "").trim().toLocaleLowerCase("id-ID");
 
   const jadwal = await db
     .prepare(
@@ -125,6 +127,9 @@ export default async function HalamanJadwalAdmin() {
       sesi: [{ id: -k.id, waktu, ruangan: "Tidak menggunakan ruangan", statusLabel: label, statusClass: warnaStatusPermohonan(k.status) }],
     };
   }));
+  const hasilEvents = q ? events.filter((event) =>
+    [event.judul, event.nomor ?? "", ...event.sesi.map((s) => s.ruangan)].some((value) => value.toLocaleLowerCase("id-ID").includes(q))
+  ) : events;
 
   return (
     <div className="space-y-6">
@@ -134,6 +139,12 @@ export default async function HalamanJadwalAdmin() {
           Kalender jadwal yang diusulkan dan dikonfirmasi. Kunjungan mandiri memakai tanggal dan waktu usulan tanpa pembagian ruangan.
         </p>
       </header>
+
+      <form method="get" className="flex flex-wrap gap-2">
+        <input name="q" className="input max-w-md" defaultValue={query.q ?? ""} placeholder="Cari kelompok, nomor, atau ruangan" />
+        <button type="submit" className="btn-secondary">Cari jadwal</button>
+        {q && <Link href="/admin/jadwal" className="btn-secondary">Reset</Link>}
+      </form>
 
       {bentrok.size > 0 && (
         <p className="alert-error">
@@ -151,7 +162,7 @@ export default async function HalamanJadwalAdmin() {
         </p>
       )}
 
-      <KalenderJadwal events={events} hariIni={hariIniISO()} />
+      <KalenderJadwal events={hasilEvents} hariIni={hariIniISO()} />
     </div>
   );
 }

@@ -10,12 +10,15 @@ import { aksiBacaSemuaNotifikasi } from "../actions";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Notifikasi" };
 
-export default async function HalamanNotifikasi() {
+export default async function HalamanNotifikasi({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const query = await searchParams;
   const user = await wajibPemohon();
+  const q = (query.q ?? "").trim().toLocaleLowerCase("id-ID");
 
   const daftar = await db
     .prepare(`SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 100`)
     .all(user.id) as Notification[];
+  const hasil = q ? daftar.filter((n) => [n.judul, n.pesan].some((v) => v.toLocaleLowerCase("id-ID").includes(q))) : daftar;
 
   const belumDibaca = daftar.filter((n) => !n.dibaca).length;
 
@@ -37,14 +40,20 @@ export default async function HalamanNotifikasi() {
         )}
       </header>
 
-      {daftar.length === 0 ? (
+      <form method="get" className="flex flex-wrap gap-2">
+        <input name="q" className="input max-w-md" defaultValue={query.q ?? ""} placeholder="Cari judul atau isi notifikasi" />
+        <button type="submit" className="btn-secondary">Cari</button>
+        {q && <Link href="/notifikasi" className="btn-secondary">Reset</Link>}
+      </form>
+
+      {hasil.length === 0 ? (
         <EmptyState
           judul="Belum ada notifikasi"
           pesan="Notifikasi muncul saat permohonan diverifikasi, jadwal ditetapkan, atau status pengaduan berubah."
         />
       ) : (
         <div className="card divide-y divide-slate-100">
-          {daftar.map((n) => (
+          {hasil.map((n) => (
             <div
               key={n.id}
               className={`flex gap-4 px-5 py-4 ${n.dibaca ? "" : "bg-brand-50/50"}`}

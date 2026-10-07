@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { wajibPemohon } from "@/lib/auth";
 import EmptyState from "@/components/EmptyState";
 import { formatTanggal, formatJam } from "@/lib/utils";
+import Link from "next/link";
 import PemindaiQr from "./PemindaiQr";
 
 export const dynamic = "force-dynamic";
@@ -21,8 +22,10 @@ interface BarisHadir {
 }
 
 /** Menu Daftar Hadir pemohon — Bab 27 dokumen analisis. */
-export default async function HalamanKehadiranPemohon() {
+export default async function HalamanKehadiranPemohon({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const query = await searchParams;
   const user = await wajibPemohon();
+  const q = (query.q ?? "").trim().toLocaleLowerCase("id-ID");
 
   const baris = await db
     .prepare(
@@ -37,10 +40,11 @@ export default async function HalamanKehadiranPemohon() {
         ORDER BY t.checkin_at DESC`
     )
     .all(user.id) as BarisHadir[];
+  const hasil = q ? baris.filter((b) => [b.nama_peserta, b.nama_kelompok, b.nama_ruangan, b.kode_ruangan, b.nomor, b.tanggal].some((v) => v.toLocaleLowerCase("id-ID").includes(q))) : baris;
 
   // Dikelompokkan per kunjungan + ruangan
   const grup = new Map<string, BarisHadir[]>();
-  for (const b of baris) {
+  for (const b of hasil) {
     const kunci = `${b.nomor}|${b.kode_ruangan}|${b.tanggal}`;
     if (!grup.has(kunci)) grup.set(kunci, []);
     grup.get(kunci)!.push(b);
@@ -55,9 +59,15 @@ export default async function HalamanKehadiranPemohon() {
         </p>
       </header>
 
+      <form method="get" className="flex flex-wrap gap-2">
+        <input name="q" className="input max-w-md" defaultValue={query.q ?? ""} placeholder="Cari peserta, kelompok, ruangan, tanggal" />
+        <button type="submit" className="btn-secondary">Cari riwayat</button>
+        {q && <Link href="/kehadiran" className="btn-secondary">Reset</Link>}
+      </form>
+
       <PemindaiQr />
 
-      {baris.length === 0 ? (
+      {hasil.length === 0 ? (
         <EmptyState
           judul="Belum ada catatan kehadiran"
           pesan="Kehadiran tercatat ketika peserta melakukan check-in pada ruangan saat kunjungan berlangsung."
