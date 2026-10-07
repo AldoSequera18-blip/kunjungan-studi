@@ -41,26 +41,13 @@ export default async function HalamanPengaturan({ searchParams }: { searchParams
   }[];
   const hasilPengguna = q ? pengguna.filter((u) => [u.nama, u.email, u.instansi ?? "", u.role].some((v) => v.toLocaleLowerCase("id-ID").includes(q))) : pengguna;
 
-  const perluKonfirmasi = [
-    "Format final formulir pendaftaran dan daftar field wajib.",
-    "Kapasitas maksimal setiap ruangan untuk kegiatan kunjungan studi.",
-    "Aturan bentrokan: apakah satu ruangan boleh dipakai dua kelompok bersamaan.",
-    "Mekanisme check-in/check-out peserta dan apakah check-out wajib.",
-    "Apakah daftar hadir menggunakan QR Code atau metode lain.",
-    "Apakah pengaduan fasilitas boleh dikirim secara anonim.",
-    "Daftar kategori fasilitas resmi pada formulir pengaduan.",
-    "Petugas tindak lanjut dan SLA penyelesaian pengaduan.",
-    "Dokumen yang benar-benar diwajibkan pada saat pendaftaran.",
-    "Kebijakan notifikasi, masa retensi, dan penghapusan data.",
-  ];
 
   return (
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-bold text-slate-900">Pengaturan</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Informasi sistem, daftar pengguna, dan hal-hal yang masih memerlukan konfirmasi resmi
-          dari Balai.
+          Informasi sistem dan daftar pengguna.
         </p>
       </header>
 
@@ -119,31 +106,9 @@ export default async function HalamanPengaturan({ searchParams }: { searchParams
         </div>
       </section>
 
-      <section className="card-pad">
-        <h2 className="section-title">Hal yang Masih Perlu Dikonfirmasi</h2>
-        <p className="hint mt-1">
-          Mengacu Bab 46 dokumen analisis — detail berikut belum boleh diasumsikan sebagai
-          aturan wajib di aplikasi.
-        </p>
-        <ul className="mt-4 space-y-2 text-sm text-slate-700">
-          {perluKonfirmasi.map((t) => (
-            <li key={t} className="flex gap-2">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
-              <span>{t}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
 
-      <section className="card-pad">
-        <h2 className="section-title">Keamanan Data</h2>
-        <ul className="mt-3 space-y-2 text-sm text-slate-700">
-          <li>Password disimpan dalam bentuk hash bcrypt, tidak pernah plaintext.</li>
-          <li>Sesi login menggunakan cookie httpOnly dengan masa berlaku 7 hari.</li>
-          <li>Pemohon hanya dapat mengakses data kunjungan miliknya sendiri.</li>
-          <li>Seluruh aktivitas penting tercatat pada Audit Log beserta pelaku dan waktunya.</li>
-        </ul>
-      </section>
+
+
     </div>
   );
 }

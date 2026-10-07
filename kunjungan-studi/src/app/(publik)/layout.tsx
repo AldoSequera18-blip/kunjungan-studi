@@ -84,6 +84,16 @@ export default function LayoutPublik({ children }: { children: React.ReactNode }
               <ul className="mt-2 space-y-1 text-sm text-brand-300">
                 <li><a href="https://wa.me/628812658192" target="_blank" rel="noreferrer" className="hover:text-white">WhatsApp: 0881-2658-192</a></li>
                 <li><a href="mailto:balaiyanpus@jogjaprov.go.id" className="hover:text-white">balaiyanpus@jogjaprov.go.id</a></li>
+                <li>
+                  <a
+                    href="https://maps.app.goo.gl/dFC6zjqEjLrmN7Wp9"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="hover:text-white"
+                  >
+                    Jl. Janti, Banguntapan, Kabupaten Bantul, DI Yogyakarta 55198 Indonesia
+                  </a>
+                </li>
               </ul>
             </div>
             
