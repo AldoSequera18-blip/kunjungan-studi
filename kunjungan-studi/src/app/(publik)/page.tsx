@@ -176,6 +176,17 @@ export default async function HalamanInformasi() {
                 <span className="block font-semibold text-slate-700">Email</span>
                 <a className="text-brand-700 hover:underline" href="mailto:balaiyanpus@jogjaprov.go.id">balaiyanpus@jogjaprov.go.id</a>
               </li>
+              <li>
+                <span className="block font-semibold text-slate-700">Lokasi</span>
+                <a
+                  className="text-brand-700 hover:underline"
+                  href="https://maps.app.goo.gl/dFC6zjqEjLrmN7Wp9"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Jl. Janti, Banguntapan, Kabupaten Bantul, DI Yogyakarta 55198 Indonesia
+                </a>
+              </li>
             </ul>
           </div>
           <div className="card-pad">

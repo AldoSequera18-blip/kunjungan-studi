@@ -69,7 +69,7 @@ export default function LayoutPublik({ children }: { children: React.ReactNode }
 
       <footer className="border-t border-gold-500/20 bg-brand-950 text-brand-100">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <p className="text-sm font-bold text-white">
                 Balai Layanan Perpustakaan DPAD DIY
@@ -86,28 +86,8 @@ export default function LayoutPublik({ children }: { children: React.ReactNode }
                 <li><a href="mailto:balaiyanpus@jogjaprov.go.id" className="hover:text-white">balaiyanpus@jogjaprov.go.id</a></li>
               </ul>
             </div>
-            <div>
-              <p className="text-sm font-bold text-white">Waktu Layanan</p>
-              <ul className="mt-2 space-y-1 text-sm text-brand-300">
-                <li>Senin: 08.00–15.30 (istirahat 11.30–12.30)</li>
-                <li>Selasa–Kamis: 08.00–15.30</li>
-                <li>Jumat: 09.00–15.30 (istirahat 11.00–13.00)</li>
-                <li>Sabtu: 08.00–15.30 (istirahat 11.30–12.30)</li>
-                <li>Minggu: tutup</li>
-              </ul>
-              <p className="mt-2 text-xs text-brand-300">Layanan Informasi dan Aduan Masyarakat.</p>
-            </div>
-            <div>
-              <p className="text-sm font-bold text-white">Media Sosial</p>
-              <ul className="mt-2 space-y-1 text-sm text-brand-300">
-                <li><a href="https://www.instagram.com/balaiyanpus.dpaddiy/" target="_blank" rel="noreferrer" className="hover:text-white">Instagram · balaiyanpus.dpaddiy</a></li>
-                <li><a href="https://www.facebook.com/balaiyanpus.dpaddiy/" target="_blank" rel="noreferrer" className="hover:text-white">Facebook · balaiyanpus.dpaddiy</a></li>
-                <li><a href="https://x.com/balaiyanpus_diy" target="_blank" rel="noreferrer" className="hover:text-white">X · balaiyanpus_diy</a></li>
-                <li><a href="https://www.tiktok.com/@balai_yanpus" target="_blank" rel="noreferrer" className="hover:text-white">TikTok · balai_yanpus</a></li>
-                <li><a href="https://www.youtube.com/results?search_query=Balai+Yanpus+DPAD+DIY" target="_blank" rel="noreferrer" className="hover:text-white">YouTube · Balai Yanpus DPAD DIY</a></li>
-                <li><a href="https://balaiyanpus.jogjaprov.go.id/" target="_blank" rel="noreferrer" className="hover:text-white">Website</a></li>
-              </ul>
-            </div>
+            
+            
             <div>
               <p className="text-sm font-bold text-white">Tautan</p>
               <ul className="mt-2 space-y-1 text-sm">
