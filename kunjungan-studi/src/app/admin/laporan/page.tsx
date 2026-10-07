@@ -27,9 +27,12 @@ export default async function HalamanLaporan({
     total_peserta: number;
   }>(
     `SELECT COUNT(*) AS jumlah_kunjungan,
-            COALESCE(SUM(a.jumlah_peserta), 0) AS total_peserta
-       FROM visit_schedules s JOIN visit_applications a ON a.id = s.application_id
-      WHERE s.tanggal BETWEEN ? AND ? AND s.status != 'DIBATALKAN'`,
+            COALESCE(SUM(jumlah_peserta), 0) AS total_peserta
+       FROM (
+         SELECT DISTINCT a.id, a.jumlah_peserta
+           FROM visit_schedules s JOIN visit_applications a ON a.id = s.application_id
+          WHERE s.tanggal BETWEEN ? AND ? AND s.status != 'DIBATALKAN'
+       ) kunjungan_terjadwal`,
     dari,
     sampai
   );
@@ -53,11 +56,15 @@ export default async function HalamanLaporan({
     jumlah: number;
     peserta: number;
   }>(
-    `SELECT a.asal_instansi, a.jenis_instansi, COUNT(DISTINCT s.id) AS jumlah,
-            SUM(a.jumlah_peserta) AS peserta
-       FROM visit_schedules s JOIN visit_applications a ON a.id = s.application_id
-      WHERE s.tanggal BETWEEN ? AND ? AND s.status != 'DIBATALKAN'
-      GROUP BY a.asal_instansi ORDER BY jumlah DESC, peserta DESC`,
+    `SELECT asal_instansi, jenis_instansi, COUNT(*) AS jumlah,
+            SUM(jumlah_peserta) AS peserta
+       FROM (
+         SELECT DISTINCT a.id, a.asal_instansi, a.jenis_instansi, a.jumlah_peserta
+           FROM visit_schedules s JOIN visit_applications a ON a.id = s.application_id
+          WHERE s.tanggal BETWEEN ? AND ? AND s.status != 'DIBATALKAN'
+       ) kunjungan_terjadwal
+      GROUP BY asal_instansi, jenis_instansi
+      ORDER BY jumlah DESC, peserta DESC`,
     dari,
     sampai
   );
@@ -82,7 +89,7 @@ export default async function HalamanLaporan({
   );
 
   const perBulan = await banyak<{ bulan: string; jumlah: number }>(
-    `SELECT substr(s.tanggal, 1, 7) AS bulan, COUNT(*) AS jumlah
+    `SELECT substr(s.tanggal::text, 1, 7) AS bulan, COUNT(DISTINCT s.application_id) AS jumlah
        FROM visit_schedules s
       WHERE s.tanggal BETWEEN ? AND ? AND s.status != 'DIBATALKAN'
       GROUP BY bulan ORDER BY bulan`,
