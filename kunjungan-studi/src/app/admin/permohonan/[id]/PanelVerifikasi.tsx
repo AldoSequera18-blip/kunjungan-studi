@@ -55,7 +55,7 @@ export default function PanelVerifikasi({
         <form action={aksiKeputusan} className="space-y-4 border-t border-slate-100 pt-4">
           <input type="hidden" name="id" value={id} />
           {jenisKunjungan === "TIDAK_RESMI" && (
-            <p className="alert-info">Kunjungan tidak resmi tidak memerlukan pilihan ruangan. Keputusan dapat langsung disimpan dari panel ini.</p>
+            <p className="alert-info">Kunjungan mandiri tidak memerlukan pilihan ruangan. Keputusan dapat langsung disimpan dari panel ini.</p>
           )}
 
           <div>

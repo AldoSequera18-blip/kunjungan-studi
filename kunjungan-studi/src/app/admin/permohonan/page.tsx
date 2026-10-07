@@ -146,7 +146,7 @@ export default async function DaftarPermohonanAdmin({
                     <span className="block text-xs text-slate-500">{p.asal_instansi}</span>
                   </td>
                   <td className="text-sm">{p.nama_pemohon}</td>
-                  <td><span className="badge-slate">{p.jenis_kunjungan === "TIDAK_RESMI" ? "Tidak Resmi" : "Resmi"}</span></td>
+                  <td><span className="badge-slate">{p.jenis_kunjungan === "TIDAK_RESMI" ? "Mandiri" : "Resmi"}</span></td>
                   <td className="whitespace-nowrap text-sm">
                     {formatTanggal(p.tanggal_usulan)}
                     <span className="block text-xs text-slate-500">

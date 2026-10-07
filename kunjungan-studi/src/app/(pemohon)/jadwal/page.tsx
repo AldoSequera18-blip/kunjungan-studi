@@ -109,7 +109,7 @@ export default async function HalamanJadwalPemohon() {
       id: -k.id, tanggal: k.tanggal_usulan, waktu, judul: k.nama_kelompok,
       milikSaya, nomor: milikSaya ? k.nomor : undefined, statusLabel: label,
       statusClass: warna, href: milikSaya ? `/kunjungan/${k.id}` : undefined,
-      info: ["Kunjungan tidak resmi · tanpa ruangan"],
+      info: ["Kunjungan mandiri · tanpa ruangan"],
       sesi: [{ id: -k.id, waktu, ruangan: "Tidak menggunakan ruangan", statusLabel: label, statusClass: warna }],
     };
   }));
@@ -119,7 +119,7 @@ export default async function HalamanJadwalPemohon() {
       <header>
         <h1 className="text-2xl font-bold text-slate-900">Jadwal Kunjungan</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Jadwal usulan dan jadwal yang telah dikonfirmasi, termasuk kunjungan pemohon lain. Kunjungan tidak resmi tidak memakai ruangan; jadwal Anda ditandai warna hijau.
+          Jadwal usulan dan jadwal yang telah dikonfirmasi, termasuk kunjungan pemohon lain. Kunjungan mandiri tidak memakai ruangan; jadwal Anda ditandai warna hijau.
         </p>
       </header>
 

@@ -96,7 +96,7 @@ export default async function DaftarKunjungan({
                 <tr key={p.id}>
                   <td className="whitespace-nowrap font-mono text-xs">{p.nomor}</td>
                   <td className="font-medium text-slate-900">{p.nama_kelompok}</td>
-                  <td><span className="badge-slate">{p.jenis_kunjungan === "TIDAK_RESMI" ? "Tidak Resmi" : "Resmi"}</span></td>
+                  <td><span className="badge-slate">{p.jenis_kunjungan === "TIDAK_RESMI" ? "Mandiri" : "Resmi"}</span></td>
                   <td>{p.asal_instansi}</td>
                   <td className="whitespace-nowrap">
                     {formatTanggal(p.tanggal_usulan)}

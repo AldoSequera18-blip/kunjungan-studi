@@ -121,7 +121,7 @@ export default async function HalamanJadwalAdmin() {
       id: -k.id, tanggal: k.tanggal_usulan, waktu, judul: k.nama_kelompok,
       nomor: k.nomor, statusLabel: label, statusClass: warnaStatusPermohonan(k.status),
       href: `/admin/permohonan/${k.id}`,
-      info: [`Kunjungan tidak resmi · Peserta: ${k.jumlah_peserta} · tanpa ruangan`],
+      info: [`Kunjungan mandiri · Peserta: ${k.jumlah_peserta} · tanpa ruangan`],
       sesi: [{ id: -k.id, waktu, ruangan: "Tidak menggunakan ruangan", statusLabel: label, statusClass: warnaStatusPermohonan(k.status) }],
     };
   }));
@@ -131,7 +131,7 @@ export default async function HalamanJadwalAdmin() {
       <header>
         <h1 className="text-2xl font-bold text-slate-900">Jadwal Kunjungan</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Kalender jadwal yang diusulkan dan dikonfirmasi. Kunjungan tidak resmi memakai tanggal dan waktu usulan tanpa pembagian ruangan.
+          Kalender jadwal yang diusulkan dan dikonfirmasi. Kunjungan mandiri memakai tanggal dan waktu usulan tanpa pembagian ruangan.
         </p>
       </header>
 

@@ -36,7 +36,7 @@ export default function FormPermohonan({
       <fieldset className="card-pad space-y-3">
         <legend className="px-2 text-sm font-bold uppercase tracking-wide text-brand-700">Jenis Kunjungan</legend>
         <div className="grid gap-3 sm:grid-cols-2">
-          {([["RESMI", "Kunjungan Resmi", "Melampirkan surat kunjungan dan memilih ruangan."], ["TIDAK_RESMI", "Kunjungan Tidak Resmi", "Tanpa unggah surat kunjungan dan tanpa memilih ruangan."]] as const).map(([value, label, description]) => (
+          {([["RESMI", "Kunjungan Resmi", "Melampirkan surat kunjungan dan memilih ruangan."], ["TIDAK_RESMI", "Kunjungan Mandiri", "Tanpa unggah surat kunjungan dan tanpa memilih ruangan."]] as const).map(([value, label, description]) => (
             <label key={value} className={`cursor-pointer rounded-lg border p-4 ${jenisKunjungan === value ? "border-brand-600 bg-brand-50" : "border-slate-200"}`}>
               <input type="radio" name="jenis_kunjungan" value={value} checked={jenisKunjungan === value} onChange={() => setJenisKunjungan(value)} className="mr-2 accent-brand-700" />
               <span className="font-semibold text-slate-800">{label}</span>

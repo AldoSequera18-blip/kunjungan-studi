@@ -80,7 +80,7 @@ export default async function DetailKunjungan({ params }: { params: Promise<{ id
             <p className="font-mono text-sm text-slate-500">{app.nomor}</p>
             <h1 className="mt-1 text-2xl font-bold text-slate-900">{app.nama_kelompok}</h1>
             <p className="text-sm text-slate-600">{app.asal_instansi}</p>
-            <span className="badge-slate mt-2 inline-flex">Kunjungan {app.jenis_kunjungan === "TIDAK_RESMI" ? "Tidak Resmi" : "Resmi"}</span>
+            <span className="badge-slate mt-2 inline-flex">Kunjungan {app.jenis_kunjungan === "TIDAK_RESMI" ? "Mandiri" : "Resmi"}</span>
           </div>
           <span className={warnaStatusPermohonan(app.status)}>
             {LABEL_STATUS_PERMOHONAN[app.status] ?? app.status}

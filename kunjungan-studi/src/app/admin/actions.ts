@@ -124,7 +124,7 @@ export async function aksiKeputusanPermohonan(
   const pesan: Record<string, string> = {
     DITERIMA: app.jenis_kunjungan === "RESMI"
       ? `Permohonan ${app.nomor} disetujui. Jadwal dan ruangan yang Anda pilih telah dikonfirmasi.`
-      : `Permohonan ${app.nomor} disetujui. Kunjungan tidak resmi tidak memerlukan pembagian ruangan.`,
+      : `Permohonan ${app.nomor} disetujui. Kunjungan mandiri tidak memerlukan pembagian ruangan.`,
     DITOLAK: `Permohonan ${app.nomor} ditolak. Alasan: ${alasan}`,
     PERLU_PERBAIKAN: `Permohonan ${app.nomor} perlu diperbaiki. Catatan: ${alasan}`,
   };
