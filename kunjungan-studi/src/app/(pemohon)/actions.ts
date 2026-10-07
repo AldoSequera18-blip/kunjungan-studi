@@ -659,18 +659,8 @@ export async function aksiHapusSurat(_prev: FormState, fd: FormData): Promise<Fo
 /* Foto profil                                                       */
 /* ================================================================= */
 
-const DIR_FOTO = path.join(process.cwd(), "data", "foto");
 const EKSTENSI_FOTO = [".jpg", ".jpeg", ".png", ".webp"];
 const MAKS_FOTO = 2 * 1024 * 1024;
-
-function hapusBerkasFoto(nama: string | null | undefined) {
-  if (!nama) return;
-  try {
-    fs.unlinkSync(path.join(DIR_FOTO, path.basename(nama)));
-  } catch {
-    /* berkas sudah tidak ada */
-  }
-}
 
 export async function aksiUnggahFoto(_prev: FormState, fd: FormData): Promise<FormState> {
   const user = await wajibPemohon();
@@ -683,12 +673,11 @@ export async function aksiUnggahFoto(_prev: FormState, fd: FormData): Promise<Fo
   }
   if (file.size > MAKS_FOTO) return { error: "Ukuran foto maksimal 2 MB." };
 
-  fs.mkdirSync(DIR_FOTO, { recursive: true });
-  const nama = `${user.id}-${Date.now()}${ext}`;
-  fs.writeFileSync(path.join(DIR_FOTO, nama), Buffer.from(await file.arrayBuffer()));
-
-  hapusBerkasFoto(user.foto);
-  await db.prepare(`UPDATE users SET foto = ? WHERE id = ?`).run(nama, user.id);
+  // Simpan foto sebagai data URL di PostgreSQL agar tetap tersedia pada
+  // deployment serverless seperti Vercel yang tidak menyediakan disk persisten.
+  const mime = ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : `image/${ext.slice(1)}`;
+  const foto = `data:${mime};base64,${Buffer.from(await file.arrayBuffer()).toString("base64")}`;
+  await db.prepare(`UPDATE users SET foto = ? WHERE id = ?`).run(foto, user.id);
 
   await catatAudit({
     userId: user.id,
@@ -706,7 +695,6 @@ export async function aksiHapusFoto(_prev: FormState, _fd: FormData): Promise<Fo
   const user = await wajibPemohon();
   if (!user.foto) return { error: "Belum ada foto profil." };
 
-  hapusBerkasFoto(user.foto);
   await db.prepare(`UPDATE users SET foto = NULL WHERE id = ?`).run(user.id);
 
   await catatAudit({

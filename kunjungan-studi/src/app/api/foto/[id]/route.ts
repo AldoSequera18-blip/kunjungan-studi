@@ -29,6 +29,18 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     | undefined;
   if (!row?.foto) return new NextResponse("Tidak ditemukan", { status: 404 });
 
+  const fotoTersimpan = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/]+=*)$/.exec(row.foto);
+  if (fotoTersimpan) {
+    return new NextResponse(Buffer.from(fotoTersimpan[2], "base64"), {
+      headers: {
+        "Content-Type": fotoTersimpan[1],
+        "Cache-Control": "private, max-age=0, must-revalidate",
+        "X-Content-Type-Options": "nosniff",
+      },
+    });
+  }
+
+  // Dukungan sementara untuk foto lama yang tersimpan sebagai nama berkas lokal.
   const file = path.join(process.cwd(), "data", "foto", path.basename(row.foto));
   if (!fs.existsSync(file)) return new NextResponse("Tidak ditemukan", { status: 404 });
 
