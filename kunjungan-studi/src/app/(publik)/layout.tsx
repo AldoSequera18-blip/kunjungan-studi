@@ -69,7 +69,7 @@ export default function LayoutPublik({ children }: { children: React.ReactNode }
 
       <footer className="border-t border-gold-500/20 bg-brand-950 text-brand-100">
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <p className="text-sm font-bold text-white">
                 Balai Layanan Perpustakaan DPAD DIY
@@ -84,20 +84,21 @@ export default function LayoutPublik({ children }: { children: React.ReactNode }
               <ul className="mt-2 space-y-1 text-sm text-brand-300">
                 <li><a href="https://wa.me/628812658192" target="_blank" rel="noreferrer" className="hover:text-white">WhatsApp: 0881-2658-192</a></li>
                 <li><a href="mailto:balaiyanpus@jogjaprov.go.id" className="hover:text-white">balaiyanpus@jogjaprov.go.id</a></li>
-                <li>
-                  <a
-                    href="https://maps.app.goo.gl/dFC6zjqEjLrmN7Wp9"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-white"
-                  >
-                    Jl. Janti, Banguntapan, Kabupaten Bantul, DI Yogyakarta 55198 Indonesia
-                  </a>
-                </li>
               </ul>
             </div>
-            
-            
+            <div>
+              <p className="text-sm font-bold text-white">Lokasi</p>
+              <p className="mt-2 text-sm text-brand-300">
+                <a
+                  href="https://maps.app.goo.gl/dFC6zjqEjLrmN7Wp9"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-white"
+                >
+                  Jl. Janti, Banguntapan, Kabupaten Bantul, DI Yogyakarta 55198 Indonesia
+                </a>
+              </p>
+            </div>
             <div>
               <p className="text-sm font-bold text-white">Tautan</p>
               <ul className="mt-2 space-y-1 text-sm">
