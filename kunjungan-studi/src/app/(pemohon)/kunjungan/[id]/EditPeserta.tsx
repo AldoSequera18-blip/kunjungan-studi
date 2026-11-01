@@ -1,12 +1,12 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import type { Visitor } from "@/lib/types";
 import { aksiUbahPeserta } from "../../actions";
 
 export default function EditPeserta({ peserta }: { peserta: Visitor }) {
-  const [state, formAction] = useFormState(aksiUbahPeserta, {});
+  const [state, formAction] = useActionState(aksiUbahPeserta, {});
 
   return (
     <details className="min-w-48">

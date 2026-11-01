@@ -209,7 +209,7 @@ export async function aksiBuatPermohonan(_prev: FormState, fd: FormData): Promis
       teks(fd, "waktu_selesai_usulan"),
       teks(fd, "penanggung_jawab") || user.nama,
       teks(fd, "telepon_pj") || user.telepon,
-      teks(fd, "catatan") || null,
+      jenisKunjungan === "RESMI" ? teks(fd, "catatan") || null : null,
       "DRAFT"
     );
 
@@ -267,7 +267,7 @@ export async function aksiUbahPermohonan(_prev: FormState, fd: FormData): Promis
     teks(fd, "waktu_selesai_usulan"),
     teks(fd, "penanggung_jawab") || null,
     teks(fd, "telepon_pj") || null,
-    teks(fd, "catatan") || null,
+    jenisKunjungan === "RESMI" ? teks(fd, "catatan") || null : null,
     id
   );
 

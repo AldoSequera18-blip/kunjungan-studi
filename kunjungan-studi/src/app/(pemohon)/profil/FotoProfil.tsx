@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import { aksiHapusFoto, aksiUnggahFoto } from "../actions";
 
@@ -13,8 +13,8 @@ export default function FotoProfil({
   nama: string;
   foto: string | null;
 }) {
-  const [stateUnggah, aksiUnggah] = useFormState(aksiUnggahFoto, undefined);
-  const [stateHapus, aksiHapus] = useFormState(aksiHapusFoto, undefined);
+  const [stateUnggah, aksiUnggah] = useActionState(aksiUnggahFoto, undefined);
+  const [stateHapus, aksiHapus] = useActionState(aksiHapusFoto, undefined);
 
   return (
     <div>

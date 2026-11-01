@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useFormState } from "react-dom";
+import { useActionState, useState } from "react";
 import SubmitButton from "@/components/SubmitButton";
+import type { FormState } from "@/lib/types";
 import { aksiLogin } from "../actions";
 
 export default function FormLogin() {
-  const [state, formAction] = useFormState(aksiLogin, {});
+  const [state, formAction] = useActionState<FormState, FormData>(aksiLogin, undefined);
   const [passwordTerlihat, setPasswordTerlihat] = useState(false);
 
   return (

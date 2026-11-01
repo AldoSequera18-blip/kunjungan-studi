@@ -1,13 +1,13 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import type { Room } from "@/lib/types";
 import { aksiSimpanRuangan } from "../actions";
 
 /** Modul Ruangan — Bab 34 dokumen analisis. */
 export default function FormRuangan({ data }: { data?: Room }) {
-  const [state, formAction] = useFormState(aksiSimpanRuangan, undefined);
+  const [state, formAction] = useActionState(aksiSimpanRuangan, undefined);
 
   return (
     <form action={formAction} className="space-y-4">

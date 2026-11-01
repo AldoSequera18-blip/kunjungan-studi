@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import type { Visitor } from "@/lib/types";
 import { aksiCheckin, aksiCheckout } from "../actions";
@@ -24,8 +24,8 @@ export default function PanelDaftarHadir({
   peserta: Visitor[];
   kehadiran: BarisHadir[];
 }) {
-  const [stateIn, aksiIn] = useFormState(aksiCheckin, undefined);
-  const [stateOut, aksiOut] = useFormState(aksiCheckout, undefined);
+  const [stateIn, aksiIn] = useActionState(aksiCheckin, undefined);
+  const [stateOut, aksiOut] = useActionState(aksiCheckout, undefined);
 
   const sudahHadir = new Set(
     kehadiran.filter((k) => !k.checkout_at).map((k) => k.visitor_id)

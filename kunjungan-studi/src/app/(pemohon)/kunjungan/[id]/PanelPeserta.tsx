@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import type { Visitor } from "@/lib/types";
 import { aksiHapusPeserta, aksiTambahPeserta } from "../../actions";
@@ -15,8 +15,8 @@ export default function PanelPeserta({
   peserta: Visitor[];
   bolehUbah: boolean;
 }) {
-  const [stateTambah, aksiTambah] = useFormState(aksiTambahPeserta, undefined);
-  const [stateHapus, aksiHapus] = useFormState(aksiHapusPeserta, undefined);
+  const [stateTambah, aksiTambah] = useActionState(aksiTambahPeserta, undefined);
+  const [stateHapus, aksiHapus] = useActionState(aksiHapusPeserta, undefined);
 
   const jumlahPeserta = peserta.filter((p) => p.jenis === "PESERTA").length;
   const jumlahPendamping = peserta.filter((p) => p.jenis === "PENDAMPING").length;

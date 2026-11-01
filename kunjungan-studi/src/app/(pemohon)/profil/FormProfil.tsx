@@ -1,12 +1,12 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import type { SessionUser } from "@/lib/types";
 import { aksiUbahProfil } from "../actions";
 
 export default function FormProfil({ user }: { user: SessionUser }) {
-  const [state, formAction] = useFormState(aksiUbahProfil, undefined);
+  const [state, formAction] = useActionState(aksiUbahProfil, undefined);
 
   return (
     <form action={formAction} className="space-y-4">

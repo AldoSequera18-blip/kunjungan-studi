@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import { JENIS_INSTANSI, type FormState, type Room, type VisitApplication } from "@/lib/types";
 import { aksiBuatPermohonan, aksiUbahPermohonan } from "../actions";
@@ -24,7 +24,7 @@ export default function FormPermohonan({
   ruanganTerpilih?: number[];
 }) {
   const aksi = mode === "baru" ? aksiBuatPermohonan : aksiUbahPermohonan;
-  const [state, formAction] = useFormState<FormState, FormData>(aksi, undefined);
+  const [state, formAction] = useActionState<FormState, FormData>(aksi, undefined);
   const [jenisKunjungan, setJenisKunjungan] = useState<"RESMI" | "TIDAK_RESMI">(data?.jenis_kunjungan ?? "RESMI");
 
   return (
@@ -218,7 +218,7 @@ export default function FormPermohonan({
       {/* ---- Penanggung jawab ---- */}
       <fieldset className="card-pad space-y-4">
         <legend className="px-2 text-sm font-bold uppercase tracking-wide text-brand-700">
-          Penanggung Jawab &amp; Catatan
+          {jenisKunjungan === "RESMI" ? "Penanggung Jawab & Catatan" : "Penanggung Jawab"}
         </legend>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -243,7 +243,7 @@ export default function FormPermohonan({
           </div>
         </div>
 
-        <div>
+        {jenisKunjungan === "RESMI" && <div>
           <label className="label" htmlFor="catatan">Catatan Tambahan</label>
           <textarea
             id="catatan"
@@ -252,7 +252,7 @@ export default function FormPermohonan({
             placeholder="Kebutuhan khusus, permintaan materi, atau informasi lain."
             defaultValue={data?.catatan ?? ""}
           />
-        </div>
+        </div>}
       </fieldset>
 
       {/* ---- Surat kunjungan (hanya saat membuat permohonan baru) ---- */}

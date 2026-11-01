@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import { aksiRegenerasiQr } from "../../actions";
 
@@ -23,7 +23,7 @@ export default function KartuQr({
   kodeRuangan: string;
   baseUrl: string;
 }) {
-  const [state, formAction] = useFormState(aksiRegenerasiQr, undefined);
+  const [state, formAction] = useActionState(aksiRegenerasiQr, undefined);
 
   const tujuan =
     tipe === "PENGADUAN" ? `${baseUrl}/pengaduan/${token}` : `${baseUrl}/hadir/${token}`;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import { aksiTindakLanjutPengaduan } from "../../actions";
 
@@ -15,7 +15,7 @@ export default function FormTindakLanjut({
   statusSaatIni: string;
   petugasSaatIni: string | null;
 }) {
-  const [state, formAction] = useFormState(aksiTindakLanjutPengaduan, undefined);
+  const [state, formAction] = useActionState(aksiTindakLanjutPengaduan, undefined);
   const [status, setStatus] = useState(statusSaatIni);
 
   const wajibCatatan = ["DITOLAK", "TIDAK_VALID"].includes(status);

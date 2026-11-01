@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import { aksiUbahStatusJadwal } from "../actions";
 
@@ -11,7 +11,7 @@ export default function AksiJadwal({
   scheduleId: number;
   status: string;
 }) {
-  const [state, formAction] = useFormState(aksiUbahStatusJadwal, undefined);
+  const [state, formAction] = useActionState(aksiUbahStatusJadwal, undefined);
 
   const pilihan: { nilai: string; label: string; kelas: string }[] = [];
   if (status === "TERJADWAL") {

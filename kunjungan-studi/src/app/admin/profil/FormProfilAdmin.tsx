@@ -1,12 +1,12 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import type { SessionUser } from "@/lib/types";
 import { aksiUbahPasswordAdmin, aksiUbahProfilAdmin } from "../actions";
 
 export function FormProfilAdmin({ user }: { user: SessionUser }) {
-  const [state, formAction] = useFormState(aksiUbahProfilAdmin, undefined);
+  const [state, formAction] = useActionState(aksiUbahProfilAdmin, undefined);
 
   return (
     <form action={formAction} className="space-y-4">
@@ -37,7 +37,7 @@ export function FormProfilAdmin({ user }: { user: SessionUser }) {
 }
 
 export function FormPasswordAdmin() {
-  const [state, formAction] = useFormState(aksiUbahPasswordAdmin, undefined);
+  const [state, formAction] = useActionState(aksiUbahPasswordAdmin, undefined);
 
   return (
     <form action={formAction} className="space-y-4">

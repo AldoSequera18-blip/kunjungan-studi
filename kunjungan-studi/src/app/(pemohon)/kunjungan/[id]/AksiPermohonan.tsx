@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import { aksiAjukanPermohonan, aksiBatalkanPermohonan } from "../../actions";
 
@@ -13,8 +13,8 @@ export default function AksiPermohonan({
   bisaDiajukan: boolean;
   bisaDibatalkan: boolean;
 }) {
-  const [stateAjukan, aksiAjukan] = useFormState(aksiAjukanPermohonan, undefined);
-  const [stateBatal, aksiBatal] = useFormState(aksiBatalkanPermohonan, undefined);
+  const [stateAjukan, aksiAjukan] = useActionState(aksiAjukanPermohonan, undefined);
+  const [stateBatal, aksiBatal] = useActionState(aksiBatalkanPermohonan, undefined);
 
   if (!bisaDiajukan && !bisaDibatalkan) return null;
 

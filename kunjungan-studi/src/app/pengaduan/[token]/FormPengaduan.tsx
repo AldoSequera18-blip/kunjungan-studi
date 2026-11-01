@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import { KATEGORI_FASILITAS } from "@/lib/types";
 import { aksiKirimPengaduan } from "../actions";
@@ -14,7 +14,7 @@ export default function FormPengaduan({
   token: string;
   namaRuangan: string;
 }) {
-  const [state, formAction] = useFormState(aksiKirimPengaduan, undefined);
+  const [state, formAction] = useActionState(aksiKirimPengaduan, undefined);
   const [anonim, setAnonim] = useState(false);
 
   if (state?.success) {

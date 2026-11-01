@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import { KATEGORI_FASILITAS, type Room } from "@/lib/types";
 import { aksiPengaduanDariMenu } from "../actions";
@@ -12,7 +12,7 @@ export default function FormPengaduanMenu({
   ruangan: Room[];
   kunjungan: { id: number; nomor: string; nama_kelompok: string }[];
 }) {
-  const [state, formAction] = useFormState(aksiPengaduanDariMenu, undefined);
+  const [state, formAction] = useActionState(aksiPengaduanDariMenu, undefined);
 
   return (
     <form action={formAction} className="space-y-4">

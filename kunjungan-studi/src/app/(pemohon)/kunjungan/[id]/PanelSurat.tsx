@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import { aksiHapusSurat, aksiUnggahSurat } from "../../actions";
 
@@ -13,8 +13,8 @@ export default function PanelSurat({
   surat: { id: number; nama_file: string; created_at: string } | null;
   bolehUbah: boolean;
 }) {
-  const [stateUnggah, aksiUnggah] = useFormState(aksiUnggahSurat, undefined);
-  const [stateHapus, aksiHapus] = useFormState(aksiHapusSurat, undefined);
+  const [stateUnggah, aksiUnggah] = useActionState(aksiUnggahSurat, undefined);
+  const [stateHapus, aksiHapus] = useActionState(aksiHapusSurat, undefined);
 
   return (
     <section className="card-pad">

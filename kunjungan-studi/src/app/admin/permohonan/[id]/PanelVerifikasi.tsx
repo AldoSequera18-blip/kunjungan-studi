@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useFormState } from "react-dom";
+import { useActionState } from "react";
 import SubmitButton from "@/components/SubmitButton";
 import {
   aksiKeputusanPermohonan,
@@ -19,9 +19,9 @@ export default function PanelVerifikasi({
   status: string;
   jenisKunjungan: "RESMI" | "TIDAK_RESMI";
 }) {
-  const [stateMulai, aksiMulai] = useFormState(aksiMulaiVerifikasi, undefined);
-  const [stateKeputusan, aksiKeputusan] = useFormState(aksiKeputusanPermohonan, undefined);
-  const [stateSelesai, aksiSelesai] = useFormState(aksiSelesaikanKunjungan, undefined);
+  const [stateMulai, aksiMulai] = useActionState(aksiMulaiVerifikasi, undefined);
+  const [stateKeputusan, aksiKeputusan] = useActionState(aksiKeputusanPermohonan, undefined);
+  const [stateSelesai, aksiSelesai] = useActionState(aksiSelesaikanKunjungan, undefined);
   const [keputusan, setKeputusan] = useState("DITERIMA");
 
   const bisaVerifikasi = status === "DIAJUKAN";
