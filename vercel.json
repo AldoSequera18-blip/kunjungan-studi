@@ -1,0 +1,4 @@
+{
+  "installCommand": "node scripts/vercel-npm.cjs ci",
+  "buildCommand": "node scripts/vercel-npm.cjs run build"
+}
