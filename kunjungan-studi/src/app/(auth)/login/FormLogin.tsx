@@ -15,7 +15,7 @@ export default function FormLogin() {
 
       <div>
         <label className="label" htmlFor="email">Email</label>
-        <input id="email" name="email" type="email" className="input" placeholder="nama@instansi.sch.id" required autoComplete="email" />
+        <input id="email" name="email" type="email" className="input" placeholder="masukkan email" required autoComplete="email" />
       </div>
 
       <div>
