@@ -19,7 +19,7 @@ export default function FormRegistrasi() {
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="label" htmlFor="email">Email *</label>
-          <input id="email" name="email" type="email" className="input" placeholder="nama@instansi.sch.id" required />
+          <input id="email" name="email" type="email" className="input" placeholder="masukkan email" required />
         </div>
         <div>
           <label className="label" htmlFor="telepon">Nomor Telepon *</label>
