@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-slate-50 text-slate-800 antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply text-slate-900;
+  }
+  ::selection {
+    @apply bg-gold-300/60 text-brand-950;
+  }
+}
+
+@layer components {
+  /* ---------- Tombol ---------- */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold
+           shadow-sm transition-all duration-150 active:scale-[0.98]
+           disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100;
+  }
+  .btn-primary {
+    @apply btn bg-brand-700 text-white hover:bg-brand-800 hover:shadow-card;
+  }
+  .btn-secondary {
+    @apply btn border border-slate-300 bg-white text-slate-700 shadow-none hover:border-brand-300 hover:bg-brand-50 hover:text-brand-800;
+  }
+  .btn-gold {
+    @apply btn bg-gold-500 text-brand-950 hover:bg-gold-400 hover:shadow-card;
+  }
+  .btn-danger {
+    @apply btn bg-rose-600 text-white hover:bg-rose-700;
+  }
+  .btn-warning {
+    @apply btn bg-amber-500 text-white hover:bg-amber-600;
+  }
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs;
+  }
+
+  /* ---------- Form ---------- */
+  .label {
+    @apply mb-1.5 block text-sm font-medium text-slate-700;
+  }
+  .input {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900
+           transition-colors placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20;
+  }
+  .textarea {
+    @apply input min-h-[96px] resize-y;
+  }
+  .hint {
+    @apply mt-1 text-xs text-slate-500;
+  }
+
+  /* ---------- Kartu & tabel ---------- */
+  .card {
+    @apply rounded-xl border border-slate-200/80 bg-white shadow-card;
+  }
+  .card-pad {
+    @apply card p-5;
+  }
+  .card-hover {
+    @apply transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-card-hover;
+  }
+  .section-title {
+    @apply text-lg font-bold text-slate-900;
+  }
+  .table {
+    @apply w-full border-collapse text-left text-sm;
+  }
+  .table thead th {
+    @apply border-b border-slate-200 bg-slate-50/80 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500;
+  }
+  .table tbody td {
+    @apply border-b border-slate-100 px-4 py-3 align-top text-slate-700;
+  }
+  .table tbody tr {
+    @apply transition-colors;
+  }
+  .table tbody tr:hover {
+    @apply bg-brand-50/60;
+  }
+
+  /* ---------- Badge status ---------- */
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide;
+  }
+  .badge-slate  { @apply badge bg-slate-100 text-slate-700; }
+  .badge-blue   { @apply badge bg-sky-100 text-sky-700; }
+  .badge-amber  { @apply badge bg-gold-100 text-gold-800; }
+  .badge-green  { @apply badge bg-brand-100 text-brand-800; }
+  .badge-red    { @apply badge bg-rose-100 text-rose-700; }
+  .badge-purple { @apply badge bg-violet-100 text-violet-700; }
+
+  /* ---------- Notifikasi inline ---------- */
+  .alert {
+    @apply rounded-lg border px-4 py-3 text-sm;
+  }
+  .alert-error   { @apply alert border-rose-200 bg-rose-50 text-rose-800; }
+  .alert-success { @apply alert border-brand-200 bg-brand-50 text-brand-800; }
+  .alert-info    { @apply alert border-sky-200 bg-sky-50 text-sky-800; }
+  .alert-warning { @apply alert border-gold-200 bg-gold-50 text-gold-900; }
+}
+
+@media print {
+  .no-print { display: none !important; }
+}
