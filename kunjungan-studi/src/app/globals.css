@@ -4,6 +4,8 @@
 
 @layer base {
   :root {
+    --font-sans: Arial, "Helvetica Neue";
+    --font-display: Georgia;
   }
   html {
     -webkit-text-size-adjust: 100%;
