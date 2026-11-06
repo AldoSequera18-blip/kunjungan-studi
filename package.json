@@ -1,0 +1,36 @@
+{
+  "name": "kunjungan-studi",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sistem Informasi Manajemen Kunjungan Studi Berkelompok - Balai Layanan Perpustakaan Pemda DIY",
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0",
+    "build": "next build",
+    "start": "next start --hostname 0.0.0.0",
+    "start:local": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-local.ps1",
+    "install:autostart": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install-autostart.ps1",
+    "remove:autostart": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/remove-autostart.ps1",
+    "lint": "tsc --noEmit",
+    "db:check": "node --env-file=.env.local scripts/check-supabase-connection.mjs"
+  },
+  "dependencies": {
+    "@zxing/browser": "^0.2.1",
+    "bcryptjs": "^2.4.3",
+    "next": "^15.5.27",
+    "postgres": "^3.4.9",
+    "qrcode": "^1.5.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.16.11",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.3"
+  }
+}
