@@ -19,3 +19,4 @@ tsconfig.tsbuildinfo
 /data/surat/
 !/public/uploads/.gitkeep
 /data/foto/
+node_modules
