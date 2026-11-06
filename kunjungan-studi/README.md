@@ -1,6 +1,6 @@
 ﻿# Sistem Informasi Manajemen Kunjungan Studi
 
-Aplikasi web berbasis **Next.js 14 (App Router) + TypeScript + Tailwind CSS** untuk
+Aplikasi web berbasis **Next.js 15 (App Router) + TypeScript + Tailwind CSS** untuk
 Balai Layanan Perpustakaan Pemda DIY. Dibangun mengikuti dokumen
 *Analisis Sistem Informasi Manajemen Kunjungan Studi v1.0*.
 
@@ -15,7 +15,7 @@ Informasi Kunjungan â†’ Pendaftaran Kelompok â†’ Verifikasi Admin â�
 
 ---
 
-## 1. Menjalankan di VSCode
+## 1. Menjalankan di Windows tanpa VS Code
 
 ### Prasyarat
 
@@ -23,14 +23,14 @@ Informasi Kunjungan â†’ Pendaftaran Kelompok â†’ Verifikasi Admin â�
 |---|---|
 | Node.js | 20 LTS atau 22 LTS |
 | npm | bawaan Node |
-| VSCode | versi terbaru |
+| VS Code | opsional |
 
 Ekstensi VSCode yang disarankan: **ESLint**, **Tailwind CSS IntelliSense**, **Prettier**.
 
 ### Langkah
 
 ```bash
-# 1. Buka folder proyek di VSCode, lalu buka Terminal (Ctrl + `)
+# Jalankan dari PowerShell di folder proyek (VS Code tidak diperlukan)
 
 # 2. Pasang dependensi
 npm install
@@ -41,21 +41,43 @@ copy .env.example .env.local
 #    macOS / Linux:
 cp .env.example .env.local
 
-# 4. Jalankan mode pengembangan
-npm run dev
+# 4. Jalankan versi produksi lokal
+npm run start:local
 ```
 
-Buka <http://localhost:3000>.
+Buka <http://localhost:3000>. Perintah ini membangun aplikasi lalu menjalankannya dalam mode produksi.
+Terminal harus tetap terbuka selama situs dipakai. Untuk pemasangan dependensi pertama kali gunakan
+`npm install` (atau `npm ci` untuk instalasi yang mengikuti lockfile).
 
-Database aplikasi menggunakan PostgreSQL Supabase. Atur `DATABASE_URL` di
-`.env.local` dan jalankan SQL migration sebelum menjalankan aplikasi.
+### Jalankan otomatis setelah login Windows
+
+Setelah langkah konfigurasi di atas berhasil dan `npm run start:local` pernah berhasil, buka PowerShell
+di folder proyek dan jalankan:
+
+```powershell
+npm run install:autostart
+```
+
+Tugas Windows akan membangun lalu menjalankan aplikasi setiap kali akun Windows Anda login. Tidak perlu
+membuka VS Code. Situs tersedia di komputer itu pada `http://localhost:3000`; komputer harus menyala,
+tidak tidur, dan terhubung internet. Untuk menghentikan proses, hentikan tugas **Kunjungan Studi Web**
+di Task Scheduler. Untuk melepas autostart, jalankan `npm run remove:autostart`.
+
+`localhost` hanya menunjuk ke komputer itu sendiri. Agar dapat dibuka dari internet/perangkat lain kapan saja,
+deploy ke VPS/domain seperti bagian 11; komputer dan jaringan lokal tidak perlu terus menyala setelah deploy.
+
+Database aplikasi menggunakan PostgreSQL Supabase. Atur `DATABASE_URL` di `.env.local` dan jalankan SQL
+migration sebelum menjalankan aplikasi. Supabase Dashboard tidak perlu dibiarkan terbuka; yang harus aktif
+dan dapat dijangkau adalah layanan PostgreSQL proyek Supabase. Jika database tidak tersedia, halaman dan
+fitur yang membaca/menyimpan data tidak dapat berfungsi. Saat URL/kredensial koneksi berubah, perbarui
+`DATABASE_URL` di environment server lalu restart aplikasi. Perubahan skema perlu migration yang sesuai.
 
 ### Perintah lain
 
 ```bash
 npm run build     # build produksi
 npm start         # jalankan hasil build
-npm run lint      # pemeriksaan ESLint
+npm run lint      # pemeriksaan tipe TypeScript
 ```
 
 ---
